@@ -1,10 +1,30 @@
 import { Route } from "./types";
 
-export default class Router {
+export class Router {
   /**
    * Routes list
    */
   private routes: Route[] = [];
+
+  /**
+   * Router Instance
+   */
+  private static instance: Router;
+
+  /**
+   * Get router instance
+   */
+  public static getInstance() {
+    if (!Router.instance) {
+      Router.instance = new Router();
+    }
+
+    return Router.instance;
+  }
+
+  private constructor() {
+    //
+  }
 
   /**
    * Add get request method
@@ -33,3 +53,7 @@ export default class Router {
     });
   }
 }
+
+const router = Router.getInstance();
+
+export default router;

@@ -1,7 +1,6 @@
 import Fastify from "fastify";
-import Router from "./core/router";
+import router from "./core/router";
 
-const router = new Router();
 const server = Fastify();
 
 router.get("/", (request: any, response: any) => {
