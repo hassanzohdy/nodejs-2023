@@ -1,6 +1,15 @@
-import { rootPath } from "@mongez/node";
+import Fastify from "fastify";
 
-// get the absolute path to the root of the project for the given path
-const root = rootPath("");
+const server = Fastify();
 
-console.log("Project has been started in:", root);
+server.get("/", (request, response) => {
+  response.send("Hello World!");
+});
+
+async function start() {
+  await server.listen({ port: 3000 });
+
+  console.log("Start browsing using http://localhost:3000");
+}
+
+start();
