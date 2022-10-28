@@ -1,32 +1,32 @@
 {
-    "name": "node-app",
-    "version": "1.0.0",
-    "private": true,
-    "dependencies": {
-        "@mongez/fs": "^1.1.6",
-        "@mongez/node": "^1.0.1"
-    },
-    "scripts": {
-        "start": "nodemon src/index.ts --app",
-        "update": "npx ncu -u",
-        "lint": "npx eslint -c ./.eslintrc.json ./src",
-        "fix": "npx eslint --fix -c ./.eslintrc.json ./src",
-        "format": "npx prettier --write ./**/*.{js,jsx,ts,tsx,css,md,json} --config ./.prettierrc.json"
-    },
-    "devDependencies": {
-        "typescript": "^4.8.4",
-        "@types/node": "^18.11.7",
-        "@typescript-eslint/eslint-plugin": "^5.41.0",
-        "eslint": "^8.26.0",
-        "eslint-plugin-prettier": "^4.2.1",
-        "eslint-plugin-unused-imports": "^2.0.0",
-        "nodemon": "^2.0.20",
-        "ts-node": "^10.9.1",
-        "npm-check-updates": "^16.3.15",
-        "tsconfig-paths": "^4.1.0",
-        "prettier": "^2.7.1",
-        "@typescript-eslint/parser": "^5.41.0",
-        "eslint-config-prettier": "^8.5.0",
-        "prettier-plugin-organize-imports": "^3.1.1"
-    }
+  "name": "node-app",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@mongez/fs": "^1.1.6",
+    "@mongez/node": "^1.0.1"
+  },
+  "scripts": {
+    "start": "nodemon src/index.ts --app",
+    "update": "npx ncu -u",
+    "lint": "npx eslint -c ./.eslintrc.json ./src",
+    "fix": "npx eslint --fix -c ./.eslintrc.json ./src",
+    "format": "npx prettier --write ./**/*.{js,jsx,ts,tsx,css,md,json} --config ./.prettierrc.json"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4",
+    "@types/node": "^18.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.41.0",
+    "eslint": "^8.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1",
+    "npm-check-updates": "^16.3.15",
+    "tsconfig-paths": "^4.1.0",
+    "prettier": "^2.7.1",
+    "@typescript-eslint/parser": "^5.41.0",
+    "eslint-config-prettier": "^8.5.0",
+    "prettier-plugin-organize-imports": "^3.1.1"
+  }
 }
