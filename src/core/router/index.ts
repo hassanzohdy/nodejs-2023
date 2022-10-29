@@ -28,8 +28,6 @@ export class Router {
 
   /**
    * Add get request method
-   *
-   * // Method chaining
    */
   public get(path: string, handler: any) {
     this.routes.push({
@@ -39,6 +37,65 @@ export class Router {
     });
 
     return this;
+  }
+
+  /**
+   * Add post request method
+   */
+  public post(path: string, handler: any) {
+    this.routes.push({
+      method: "POST",
+      path,
+      handler,
+    });
+
+    return this;
+  }
+
+  /**
+   * Add put request method
+   */
+  public put(path: string, handler: any) {
+    this.routes.push({
+      method: "PUT",
+      path,
+      handler,
+    });
+
+    return this;
+  }
+
+  /**
+   * Add delete request method
+   */
+  public delete(path: string, handler: any) {
+    this.routes.push({
+      method: "DELETE",
+      path,
+      handler,
+    });
+
+    return this;
+  }
+
+  /**
+   * Add patch request method
+   */
+  public patch(path: string, handler: any) {
+    this.routes.push({
+      method: "PATCH",
+      path,
+      handler,
+    });
+
+    return this;
+  }
+
+  /**
+   * Get all routes list
+   */
+  public list() {
+    return this.routes;
   }
 
   /**
