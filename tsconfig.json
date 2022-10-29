@@ -18,7 +18,8 @@
     "isolatedModules": true,
     "baseUrl": "./",
     "paths": {
-      "app/*": ["src/*"]
+      "app/*": ["src/app/*"],
+      "core/*": ["src/core/*"]
     },
     "noEmit": true
   },
