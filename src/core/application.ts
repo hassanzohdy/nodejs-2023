@@ -1,8 +1,13 @@
+import multipart from "@fastify/multipart";
 import Fastify from "fastify";
 import router from "./router";
 
 export default async function startApplication() {
   const server = Fastify();
+
+  server.register(multipart, {
+    attachFieldsToBody: true,
+  });
 
   router.scan(server);
 

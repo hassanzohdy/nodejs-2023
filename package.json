@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@fastify/multipart": "^7.3.0",
     "@mongez/fs": "^1.1.6",
     "@mongez/node": "^1.0.1",
     "fastify": "^4.9.2"
