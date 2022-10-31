@@ -1,23 +1,7 @@
-import multipart from "@fastify/multipart";
-import Fastify from "fastify";
-import router from "./router";
+import { connectToDatabase } from "core/database";
+import connectToServer from "core/requests";
 
 export default async function startApplication() {
-  const server = Fastify();
-
-  server.register(multipart, {
-    attachFieldsToBody: true,
-  });
-
-  router.scan(server);
-
-  try {
-    // 👇🏻 We can use the url of the server
-    const address = await server.listen({ port: 3000 });
-
-    console.log(`Start browsing using ${address}`);
-  } catch (err) {
-    server.log.error(err);
-    process.exit(1); // stop the process, exit with error
-  }
+  connectToDatabase();
+  connectToServer();
 }

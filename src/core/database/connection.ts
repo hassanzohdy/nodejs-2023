@@ -18,11 +18,7 @@ export class Connection {
    * Connect to the database
    */
   public async connect() {
-    const host = config.get("database.host", "localhost");
-    const port = config.get("database.port", 27017);
-    const username = config.get("database.username", "");
-    const password = config.get("database.password", "");
-    const databaseName = config.get("database.name", "");
+    const { host, port, username, password, name } = this.configurations;
 
     try {
       this.client = await MongoClient.connect(`mongodb://${host}:${port}`, {
@@ -32,7 +28,7 @@ export class Connection {
         },
       });
 
-      const mongoDBDatabase = await this.client.db(databaseName);
+      const mongoDBDatabase = await this.client.db(name);
 
       this.database = database.setDatabase(mongoDBDatabase);
 
@@ -45,6 +41,19 @@ export class Connection {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  /**
+   * Get database configurations
+   */
+  public get configurations() {
+    return {
+      host: config.get("database.host", "localhost"),
+      port: config.get("database.port", 27017),
+      username: config.get("database.username", ""),
+      password: config.get("database.password", ""),
+      name: config.get("database.name", ""),
+    };
   }
 }
 
