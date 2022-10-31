@@ -2,7 +2,7 @@ import { Db } from "mongodb";
 
 export class Database {
   /**
-   * Database instance
+   * MongoDB Internal Database instance
    */
   public database!: Db;
 
@@ -13,6 +13,13 @@ export class Database {
     this.database = database;
 
     return this;
+  }
+
+  /**
+   * Get database collection instance
+   */
+  public collection(collectionName: string) {
+    return this.database.collection(collectionName);
   }
 }
 

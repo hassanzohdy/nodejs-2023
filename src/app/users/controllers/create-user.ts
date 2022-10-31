@@ -1,5 +1,22 @@
-export default function createUser(request: any) {
-  console.log("Body", request.body);
+import database from "core/database";
 
-  return request.body;
+export default async function createUser(request: any) {
+  const name = request.body.name.value;
+  const email = request.body.email.value;
+
+  const usersCollection = database.collection("users");
+
+  const result = await usersCollection.insertOne({
+    name,
+    email,
+    published: true,
+  });
+
+  return {
+    user: {
+      id: result.insertedId,
+      name,
+      email,
+    },
+  };
 }
