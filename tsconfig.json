@@ -19,6 +19,8 @@
     "baseUrl": "./",
     "paths": {
       "app/*": ["src/app/*"],
+      "config": ["src/config/index.ts"],
+      "config/*": ["src/config/*"],
       "core/*": ["src/core/*"]
     },
     "noEmit": true

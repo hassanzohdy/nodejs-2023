@@ -803,6 +803,13 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@mongez/config@^1.0.24":
+  version "1.0.24"
+  resolved "https://registry.yarnpkg.com/@mongez/config/-/config-1.0.24.tgz#42d5e45492899e489b864c997517cb83f42401bb"
+  integrity sha512-nnDqHfWZ9pecHzDVxHSMnxqptqXubLn84P8B2wxYXUelcNYTCADVz3j6cBrA1XFrMp8qwtqXL8k2SzBaJyJPVA==
+  dependencies:
+    "@mongez/reinforcements" "^2.x.x"
+
 "@mongez/fs@^1.1.6":
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/@mongez/fs/-/fs-1.1.6.tgz#a5531dea93d53570e96727c3744df16314a2cdf4"
@@ -815,6 +822,18 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@mongez/node/-/node-1.0.1.tgz#9015ab997c3de024f1691e718ff1730752225e13"
   integrity sha512-2dJlduvp3tquCZCXwyvE+Ju9CX8IPr4UlDXr+45uz0tzttqJ7nJ1RV+c2ojviTUEJucTVyfoSnPNOZiMwEWb+Q==
+
+"@mongez/reinforcements@^2.x.x":
+  version "2.0.12"
+  resolved "https://registry.yarnpkg.com/@mongez/reinforcements/-/reinforcements-2.0.12.tgz#819385e178a119ad8db239e24a6204d75dc84bed"
+  integrity sha512-aTZVW4FGmiGWUwQtGo8sPkYGOdgvgL+54ZEb93jjrn7tgdsSa9YLSLXOCWxat0gq1PrV8tFWaa8F+5uDhrbEow==
+  dependencies:
+    "@mongez/supportive-is" "^1.0.6"
+
+"@mongez/supportive-is@^1.0.6":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@mongez/supportive-is/-/supportive-is-1.0.9.tgz#c20dc9eb8c0db9dfdbfd73f83ed49d5552f92d1c"
+  integrity sha512-6ejPqrcSlZbazndWg822lcDqfBcMtvYbhvxRef+KzG6faT38Kc8JVj7JHcIGyBMPEPrjr88Lk+O64XnxKBzZrg==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -1451,7 +1470,7 @@ chainsaw@~0.1.0:
   dependencies:
     traverse ">=0.3.0 <0.4"
 
-chalk@^4.0.0:
+chalk@4, chalk@^4.0.0:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
   integrity sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
