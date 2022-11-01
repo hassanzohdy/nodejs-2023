@@ -823,7 +823,7 @@
   resolved "https://registry.yarnpkg.com/@mongez/node/-/node-1.0.1.tgz#9015ab997c3de024f1691e718ff1730752225e13"
   integrity sha512-2dJlduvp3tquCZCXwyvE+Ju9CX8IPr4UlDXr+45uz0tzttqJ7nJ1RV+c2ojviTUEJucTVyfoSnPNOZiMwEWb+Q==
 
-"@mongez/reinforcements@^2.x.x":
+"@mongez/reinforcements@^2.0.12", "@mongez/reinforcements@^2.x.x":
   version "2.0.12"
   resolved "https://registry.yarnpkg.com/@mongez/reinforcements/-/reinforcements-2.0.12.tgz#819385e178a119ad8db239e24a6204d75dc84bed"
   integrity sha512-aTZVW4FGmiGWUwQtGo8sPkYGOdgvgL+54ZEb93jjrn7tgdsSa9YLSLXOCWxat0gq1PrV8tFWaa8F+5uDhrbEow==

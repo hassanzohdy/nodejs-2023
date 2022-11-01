@@ -7,6 +7,7 @@
     "@mongez/config": "^1.0.24",
     "@mongez/fs": "^1.1.6",
     "@mongez/node": "^1.0.1",
+    "@mongez/reinforcements": "^2.0.12",
     "chalk": "4",
     "fastify": "^4.9.2",
     "mongodb": "^4.11.0"

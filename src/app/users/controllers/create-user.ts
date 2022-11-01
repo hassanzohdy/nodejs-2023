@@ -1,16 +1,19 @@
+import { rootPath } from "@mongez/node";
 import { Request } from "core/http/request";
 
 export default async function createUser(request: Request) {
-  const name = request.input("name");
-  const email = request.input("email");
+  const image = request.file("image");
 
-  console.log(request.request.body); // fastify request object
-  console.log(request.body);
+  let name = "";
+
+  if (image) {
+    name = await image.save(rootPath("storage/images"));
+  }
 
   return {
-    user: {
+    image: {
       name,
-      email,
+      size: await image?.size(),
     },
   };
 }

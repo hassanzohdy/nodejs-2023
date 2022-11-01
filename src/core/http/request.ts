@@ -1,4 +1,5 @@
 import { FastifyRequest } from "fastify";
+import UploadedFile from "./UploadedFile";
 
 export class Request {
   /**
@@ -86,9 +87,20 @@ export class Request {
   private parseInputValue(data: any) {
     // data.value appears only in the multipart form data
     // if it json, then just return the data
+    if (data.file) return data;
+
     if (data.value !== undefined) return data.value;
 
     return data;
+  }
+
+  /**
+   * Get request file in UploadedFile instance
+   */
+  public file(key: string): UploadedFile | null {
+    const file = this.input(key);
+
+    return file ? new UploadedFile(file) : null;
   }
 
   /**
