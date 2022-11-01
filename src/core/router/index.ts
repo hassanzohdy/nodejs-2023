@@ -1,3 +1,4 @@
+import request from "core/http/request";
 import { Route } from "./types";
 
 export class Router {
@@ -106,8 +107,22 @@ export class Router {
       const requestMethod = route.method.toLowerCase();
       const requestMethodFunction = server[requestMethod].bind(server);
 
-      requestMethodFunction(route.path, route.handler);
+      requestMethodFunction(route.path, this.handleRoute(route));
     });
+  }
+
+  /**
+   * Handle the given route
+   */
+  private handleRoute(route: Route) {
+    return async (fastifyRequest: any, fastifyResponse: any) => {
+      request
+        .setRequest(fastifyRequest)
+        .setResponse(fastifyResponse)
+        .setHandler(route.handler);
+
+      return await request.execute();
+    };
   }
 }
 
