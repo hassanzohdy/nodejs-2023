@@ -1,20 +1,14 @@
-import database from "core/database";
+import { Request } from "core/http/request";
 
-export default async function createUser(request: any) {
-  const name = request.body.name.value;
-  const email = request.body.email.value;
+export default async function createUser(request: Request) {
+  const name = request.input("name");
+  const email = request.input("email");
 
-  const usersCollection = database.collection("users");
-
-  const result = await usersCollection.insertOne({
-    name,
-    email,
-    published: true,
-  });
+  console.log(request.request.body); // fastify request object
+  console.log(request.body);
 
   return {
     user: {
-      id: result.insertedId,
       name,
       email,
     },
