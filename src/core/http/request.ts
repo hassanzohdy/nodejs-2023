@@ -1,5 +1,6 @@
+import config from "@mongez/config";
 import { only } from "@mongez/reinforcements";
-import Validator from "core/validator";
+import { Validator } from "core/validator";
 import { FastifyRequest } from "fastify";
 import UploadedFile from "./UploadedFile";
 
@@ -56,8 +57,14 @@ export class Request {
       await validator.scan(); // start scanning the rules
 
       if (validator.fails()) {
-        return this.response.status(422).send({
-          errors: validator.errors(),
+        const responseErrorsKey = config.get(
+          "validation.keys.response",
+          "errors",
+        );
+        const responseStatus = config.get("validation.responseStatus", 400);
+
+        return this.response.status(responseStatus).send({
+          [responseErrorsKey]: validator.errors(),
         });
       }
     }

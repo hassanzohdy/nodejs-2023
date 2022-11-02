@@ -1,15 +1,6 @@
-import RequiredRule from "./rules/required";
-import StringRule from "./rules/string";
+import config from "@mongez/config";
 
 export default class RulesList {
-  /**
-   * Rules list
-   */
-  public static rulesTypes = {
-    required: RequiredRule,
-    string: StringRule,
-  };
-
   /**
    * Errors list
    */
@@ -31,7 +22,7 @@ export default class RulesList {
    */
   public async validate() {
     for (const ruleName of this.rules) {
-      const RuleClass = (RulesList.rulesTypes as any)[ruleName];
+      const RuleClass = config.get(`validation.rules.${ruleName}`);
 
       const rule = new RuleClass(this.input, this.value);
 
@@ -39,6 +30,10 @@ export default class RulesList {
 
       if (rule.fails()) {
         this.errorsList.push(rule.error());
+
+        if (config.get("validation.stopOnFirstFailure", true)) {
+          break;
+        }
       }
     }
   }
@@ -61,9 +56,24 @@ export default class RulesList {
    * Get errors list
    */
   public errors() {
+    const returnErrorStrategy = config.get(
+      "validation.returnErrorStrategy",
+      "first",
+    );
+    const inputKey = config.get("validation.keys.inputKey", "input");
+    const inputError = config.get("validation.keys.inputError", "error");
+    const inputErrors = config.get("validation.keys.inputErrors", "errors");
+
+    if (returnErrorStrategy === "first") {
+      return {
+        [inputKey]: this.input,
+        [inputError]: this.errorsList[0],
+      };
+    }
+
     return {
-      input: this.input,
-      errors: this.errorsList,
+      [inputKey]: this.input,
+      [inputErrors]: this.errorsList,
     };
   }
 }
