@@ -10,7 +10,7 @@ export default async function createUser(request: Request) {
 
 createUser.validation = {
   rules: {
-    name: ["string", "required"],
+    name: ["required", "string"],
     email: ["required", "email"],
   },
 };

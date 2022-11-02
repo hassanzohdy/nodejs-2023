@@ -1,4 +1,5 @@
 import { Request } from "core/http/request";
+import RulesList from "./rules-list";
 
 export default class Validator {
   /**
@@ -27,7 +28,9 @@ export default class Validator {
       const inputValue = inputsValues[input];
       const inputRules = this.rules[input];
 
-      const rule = new Rule(input, inputValue, inputRules);
+      const rule = new RulesList(input, inputValue, inputRules);
+
+      rule.setRequest(this.request);
 
       await rule.validate();
 
