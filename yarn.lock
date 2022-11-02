@@ -830,7 +830,7 @@
   dependencies:
     "@mongez/supportive-is" "^1.0.6"
 
-"@mongez/supportive-is@^1.0.6":
+"@mongez/supportive-is@^1.0.6", "@mongez/supportive-is@^1.0.9":
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/@mongez/supportive-is/-/supportive-is-1.0.9.tgz#c20dc9eb8c0db9dfdbfd73f83ed49d5552f92d1c"
   integrity sha512-6ejPqrcSlZbazndWg822lcDqfBcMtvYbhvxRef+KzG6faT38Kc8JVj7JHcIGyBMPEPrjr88Lk+O64XnxKBzZrg==

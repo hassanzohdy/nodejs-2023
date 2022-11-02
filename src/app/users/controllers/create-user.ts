@@ -11,6 +11,6 @@ export default async function createUser(request: Request) {
 createUser.validation = {
   rules: {
     name: ["required", "string"],
-    email: ["required", "email"],
+    email: ["required", "string"],
   },
 };

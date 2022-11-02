@@ -28,14 +28,12 @@ export default class Validator {
       const inputValue = inputsValues[input];
       const inputRules = this.rules[input];
 
-      const rule = new RulesList(input, inputValue, inputRules);
+      const rulesList = new RulesList(input, inputValue, inputRules);
 
-      rule.setRequest(this.request);
+      await rulesList.validate();
 
-      await rule.validate();
-
-      if (rule.fails()) {
-        this.errorsList.push(rule.errors());
+      if (rulesList.fails()) {
+        this.errorsList.push(rulesList.errors());
       }
     }
   }

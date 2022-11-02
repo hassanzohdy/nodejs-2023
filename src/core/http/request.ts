@@ -188,9 +188,9 @@ export class Request {
    * Get number input value
    */
   public number(key: string, defaultValue = 0) {
-    const value = this.input(key, defaultValue);
+    const value = Number(this.input(key, defaultValue));
 
-    return Number(value);
+    return isNaN(value) ? defaultValue : value;
   }
 }
 

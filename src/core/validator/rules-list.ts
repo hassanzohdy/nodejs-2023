@@ -1,5 +1,5 @@
-import { Request } from "core/http/request";
 import RequiredRule from "./rules/required";
+import StringRule from "./rules/string";
 
 export default class RulesList {
   /**
@@ -7,17 +7,13 @@ export default class RulesList {
    */
   public static rulesTypes = {
     required: RequiredRule,
+    string: StringRule,
   };
 
   /**
    * Errors list
    */
   protected errorsList: any = [];
-
-  /**
-   * Request instance
-   */
-  protected request!: Request;
 
   /**
    * Constructor
@@ -28,15 +24,6 @@ export default class RulesList {
     protected readonly rules: any,
   ) {
     //
-  }
-
-  /**
-   * Set request
-   */
-  public setRequest(request: Request) {
-    this.request = request;
-
-    return this;
   }
 
   /**
@@ -74,6 +61,9 @@ export default class RulesList {
    * Get errors list
    */
   public errors() {
-    return this.errorsList;
+    return {
+      input: this.input,
+      errors: this.errorsList,
+    };
   }
 }

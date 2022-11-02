@@ -1,8 +1,10 @@
-export default class RequiredRule {
+import Is from "@mongez/supportive-is";
+
+export default class StringRule {
   /**
    * Rule name
    */
-  public static ruleName = "required";
+  public static ruleName = "string";
 
   /**
    * Determine if rule is valid
@@ -24,7 +26,7 @@ export default class RequiredRule {
    */
   public async validate() {
     //
-    this.isValid = Boolean(this.value) && this.value.length > 0;
+    this.isValid = Is.string(this.value) && !Is.numeric(this.value);
   }
 
   /**
@@ -45,6 +47,6 @@ export default class RequiredRule {
    * Get error message
    */
   public error() {
-    return `${this.input} is required`;
+    return `${this.input} is not a string`;
   }
 }
