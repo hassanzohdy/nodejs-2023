@@ -1,3 +1,5 @@
+import { only } from "@mongez/reinforcements";
+import Validator from "core/validator";
 import { FastifyRequest } from "fastify";
 import UploadedFile from "./UploadedFile";
 
@@ -48,6 +50,18 @@ export class Request {
    * Execute the request
    */
   public async execute() {
+    if (this.handler.validation) {
+      const validator = new Validator(this, this.handler.validation.rules);
+
+      await validator.scan(); // start scanning the rules
+
+      if (validator.fails()) {
+        return this.response.status(422).send({
+          errors: validator.errors(),
+        });
+      }
+    }
+
     return await this.handler(this, this.response);
   }
 
@@ -126,6 +140,13 @@ export class Request {
       ...this.params,
       ...this.query,
     };
+  }
+
+  /**
+   * Get only the given keys from the request data
+   */
+  public only(keys: string[]) {
+    return only(this.all(), keys);
   }
 
   /**
