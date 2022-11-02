@@ -52,20 +52,37 @@ export class Request {
    */
   public async execute() {
     if (this.handler.validation) {
-      const validator = new Validator(this, this.handler.validation.rules);
+      if (this.handler.validation.rules) {
+        const validator = new Validator(this, this.handler.validation.rules);
 
-      await validator.scan(); // start scanning the rules
+        try {
+          await validator.scan(); // start scanning the rules
+        } catch (error) {
+          console.log(error);
+        }
 
-      if (validator.fails()) {
-        const responseErrorsKey = config.get(
-          "validation.keys.response",
-          "errors",
+        if (validator.fails()) {
+          const responseErrorsKey = config.get(
+            "validation.keys.response",
+            "errors",
+          );
+          const responseStatus = config.get("validation.responseStatus", 400);
+
+          return this.response.status(responseStatus).send({
+            [responseErrorsKey]: validator.errors(),
+          });
+        }
+      }
+
+      if (this.handler.validation.validate) {
+        const result = await this.handler.validation.validate(
+          this,
+          this.response,
         );
-        const responseStatus = config.get("validation.responseStatus", 400);
 
-        return this.response.status(responseStatus).send({
-          [responseErrorsKey]: validator.errors(),
-        });
+        if (result) {
+          return result;
+        }
       }
     }
 

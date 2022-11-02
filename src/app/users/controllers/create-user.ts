@@ -13,4 +13,7 @@ createUser.validation = {
     name: ["required", "string"],
     email: ["required", "string"],
   },
+  validate: async () => {
+    //
+  },
 };

@@ -1,8 +1,12 @@
-import { RequiredRule, StringRule } from "core/validator";
+import {
+  RequiredRule,
+  StringRule,
+  ValidationConfigurations,
+} from "core/validator";
 
-const validationConfigurations = {
-  stopOnFirstFailure: true,
-  returnErrorStrategy: "first", // first | all
+const validationConfigurations: ValidationConfigurations = {
+  stopOnFirstFailure: false,
+  returnErrorStrategy: "first",
   responseStatus: 400,
   rules: {
     [RequiredRule.ruleName]: RequiredRule,
