@@ -4,6 +4,17 @@ import { Database } from "../database";
 
 type BaseModel<T> = typeof Model & (new () => T);
 
+type PaginationListing<T> = {
+  documents: T[];
+  paginationInfo: {
+    limit: number;
+    result: number;
+    page: number;
+    total: number;
+    pages: number;
+  };
+};
+
 export default abstract class Model {
   /**
    * Collection Name
@@ -164,6 +175,39 @@ export default abstract class Model {
     const documents = await query.find(filter).toArray();
 
     return documents.map(document => this.self(document));
+  }
+
+  /**
+   * Paginate records based on the given filter
+   */
+  public static async paginate<T>(
+    this: BaseModel<T>,
+    filter: Record<string, any>,
+    page: number,
+    limit: number,
+  ): Promise<PaginationListing<T>> {
+    const query = this.query();
+
+    const documents = await query
+      .find(filter)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .toArray();
+
+    const totalDocumentsOfFilter = await query.countDocuments(filter);
+
+    const result: PaginationListing<T> = {
+      documents: documents.map(document => this.self(document)),
+      paginationInfo: {
+        limit,
+        page,
+        result: documents.length,
+        total: totalDocumentsOfFilter,
+        pages: Math.ceil(totalDocumentsOfFilter / limit),
+      },
+    };
+
+    return result;
   }
 
   /**

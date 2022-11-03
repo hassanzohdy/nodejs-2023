@@ -9,14 +9,8 @@ router.get("/users/:id", getUser);
 router.post("/users", createUser);
 
 setTimeout(async () => {
-  const user = await User.create({
-    name: "hasan",
-    email: "hassanzohdy@gmail.com",
-  });
+  const allUsers = await User.paginate({}, 20, 5);
 
-  const allUsers = await User.list({
-    age: 33,
-  });
-
-  console.log(allUsers);
+  console.log(allUsers.documents.map(user => user.data));
+  console.log(allUsers.paginationInfo);
 }, 4000);
