@@ -8,6 +8,11 @@ router.get("/users", usersList);
 router.get("/users/:id", getUser);
 router.post("/users", createUser);
 
-const user = new User();
+setTimeout(async () => {
+  const user = await User.create({
+    name: "hasan",
+    email: "hassanzohdy@gmail.com",
+  });
 
-console.log(user.getCollectionName());
+  console.log(user.data);
+}, 4000);
