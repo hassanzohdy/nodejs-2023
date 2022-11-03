@@ -51,6 +51,84 @@ export default abstract class Model {
   }
 
   /**
+   * Update model by the given id
+   */
+  public static async update<T>(
+    this: BaseModel<T>,
+    id: string,
+    data: Record<string, any>,
+  ): Promise<T> {
+    // get the query of the current collection
+    const query = this.query();
+
+    // execute the update operation
+
+    const filter = {
+      _id: id,
+    };
+
+    const result = await query.findOneAndUpdate(
+      filter,
+      {
+        $set: data,
+      },
+      {
+        returnDocument: "after",
+      },
+    );
+
+    return this.self(result.value as Record<string, any>);
+  }
+
+  /**
+   * Replace the entire document for the given document id with the given new data
+   */
+  public static async replace<T>(
+    this: BaseModel<T>,
+    id: string,
+    data: Record<string, any>,
+  ): Promise<T> {
+    const query = this.query();
+
+    const filter = {
+      _id: id,
+    };
+
+    const result = await query.findOneAndReplace(filter, data, {
+      returnDocument: "after",
+    });
+
+    return this.self(result.value as Record<string, any>);
+  }
+
+  /**
+   * Find and update the document for the given filter with the given data or create a new document/record
+   * if filter has no matching
+   */
+  public static async upsert<T>(
+    this: BaseModel<T>,
+    filter: Record<string, any>,
+    data: Record<string, any>,
+  ): Promise<T> {
+    // get the query of the current collection
+    const query = this.query();
+
+    // execute the update operation
+    const result = await query.findOneAndUpdate(
+      filter,
+      {
+        $set: data,
+      },
+      {
+        returnDocument: "after",
+        upsert: true,
+      },
+    );
+
+    return this.self(result.value as Record<string, any>);
+  }
+
+  /**
    * Get an instance of child class
    */
   protected static self(data: Record<string, any>) {
