@@ -12,7 +12,7 @@ export class Connection {
   /**
    * Database instance
    */
-  public database?: Database;
+  public database!: Database;
 
   /**
    * Connect to the database
