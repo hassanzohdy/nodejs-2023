@@ -129,6 +129,44 @@ export default abstract class Model {
   }
 
   /**
+   * Find document by id
+   */
+  public static async find<T>(this: BaseModel<T>, id: string) {
+    return this.findBy("_id", id);
+  }
+
+  /**
+   * Find document by the given column and value
+   */
+  public static async findBy<T>(
+    this: BaseModel<T>,
+    column: string,
+    value: any,
+  ): Promise<T | null> {
+    const query = this.query();
+
+    const result = await query.findOne({
+      [column]: value,
+    });
+
+    return result ? this.self(result as Record<string, any>) : null;
+  }
+
+  /**
+   * List multiple documents based on the given filter
+   */
+  public static async list<T>(
+    this: BaseModel<T>,
+    filter: Record<string, any> = {},
+  ): Promise<T[]> {
+    const query = this.query();
+
+    const documents = await query.find(filter).toArray();
+
+    return documents.map(document => this.self(document));
+  }
+
+  /**
    * Get an instance of child class
    */
   protected static self(data: Record<string, any>) {

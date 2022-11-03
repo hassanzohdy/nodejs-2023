@@ -14,20 +14,9 @@ setTimeout(async () => {
     email: "hassanzohdy@gmail.com",
   });
 
-  const id = user.data._id;
+  const allUsers = await User.list({
+    age: 33,
+  });
 
-  const updatedUser = await User.upsert(
-    {
-      id: "my-id",
-      job: "Developer",
-    },
-    {
-      name: "HasanZ",
-      age: 33,
-    },
-  );
-
-  console.log(user.data);
-
-  console.log(updatedUser.data);
+  console.log(allUsers);
 }, 4000);
