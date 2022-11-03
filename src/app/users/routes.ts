@@ -9,8 +9,11 @@ router.get("/users/:id", getUser);
 router.post("/users", createUser);
 
 setTimeout(async () => {
-  const allUsers = await User.paginate({}, 20, 5);
+  const user = await User.create({
+    name: "hasan",
+  });
 
-  console.log(allUsers.documents.map(user => user.data));
-  console.log(allUsers.paginationInfo);
+  await user.save({
+    name: "Test",
+  });
 }, 4000);

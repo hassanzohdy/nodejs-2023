@@ -1,4 +1,4 @@
-import { Collection } from "mongodb";
+import { Collection, ObjectId } from "mongodb";
 import connection, { Connection } from "../connection";
 import { Database } from "../database";
 
@@ -208,6 +208,29 @@ export default abstract class Model {
     };
 
     return result;
+  }
+
+  /**
+   * Delete single document if the given filter is an ObjectId of mongodb
+   * Otherwise, delete multiple documents based on the given filter object
+   */
+  public static async delete<T>(
+    this: BaseModel<T>,
+    filter: ObjectId | Record<string, any>,
+  ): Promise<number> {
+    const query = this.query();
+
+    if (filter instanceof ObjectId) {
+      const result = await query.deleteOne({
+        _id: filter,
+      });
+
+      return result.deletedCount;
+    }
+
+    const result = await query.deleteMany(filter);
+
+    return result.deletedCount;
   }
 
   /**
