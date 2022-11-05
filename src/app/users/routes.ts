@@ -13,7 +13,5 @@ setTimeout(async () => {
     name: "hasan",
   });
 
-  await user.save({
-    name: "Test",
-  });
+  console.log(user.data);
 }, 4000);

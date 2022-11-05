@@ -1,6 +1,7 @@
 import { Collection, ObjectId } from "mongodb";
 import connection, { Connection } from "../connection";
 import { Database } from "../database";
+import masterMind from "./master-mind";
 
 type BaseModel<T> = typeof Model & (new () => T);
 
@@ -51,14 +52,23 @@ export default abstract class Model {
     // 1- get the query of the collection
     const query = this.query();
 
+    const modelData = { ...data };
+
+    modelData.id = await this.generateNextId();
+
     // perform the insertion
     const result = await query.insertOne(data);
-
-    const modelData = { ...data };
 
     modelData._id = result.insertedId;
 
     return this.self(modelData);
+  }
+
+  /**
+   * Generate next id
+   */
+  public static async generateNextId() {
+    return await masterMind.generateNextId(this.collectionName);
   }
 
   /**
