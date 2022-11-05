@@ -14,7 +14,11 @@ export class MasterMind {
   /**
    * Generate next id for the given collection name
    */
-  public async generateNextId(collectionName: string): Promise<number> {
+  public async generateNextId(
+    collectionName: string,
+    incrementIdBy = 1,
+    initialId = 1,
+  ): Promise<number> {
     const query = this.connection.database.collection(this.collectionName);
 
     const collectionDocument = await query.findOne({
@@ -22,7 +26,7 @@ export class MasterMind {
     });
 
     if (collectionDocument) {
-      const nextId = collectionDocument.id + 1;
+      const nextId = collectionDocument.id + incrementIdBy;
 
       // update the collection with the latest id
       await query.updateOne(
@@ -42,10 +46,10 @@ export class MasterMind {
       // create a new record for it
       await query.insertOne({
         collection: collectionName,
-        id: 1,
+        id: initialId,
       });
 
-      return 1;
+      return initialId;
     }
   }
 }

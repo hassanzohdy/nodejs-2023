@@ -28,6 +28,16 @@ export default abstract class Model {
   public static connection: Connection = connection;
 
   /**
+   * Define the initial value of the id
+   */
+  public static initialId = 1;
+
+  /**
+   * Define the amount to eb incremented by for the next generated id
+   */
+  public static incrementIdBy = 1;
+
+  /**
    * Constructor
    */
   public constructor(public data: Record<string, any> = {}) {
@@ -68,7 +78,11 @@ export default abstract class Model {
    * Generate next id
    */
   public static async generateNextId() {
-    return await masterMind.generateNextId(this.collectionName);
+    return await masterMind.generateNextId(
+      this.collectionName,
+      this.incrementIdBy,
+      this.initialId,
+    );
   }
 
   /**
