@@ -5,6 +5,8 @@ import masterMind from "./master-mind";
 
 type BaseModel<T> = typeof Model & (new () => T);
 
+type PrimaryIdType = string | number | ObjectId;
+
 type PaginationListing<T> = {
   documents: T[];
   paginationInfo: {
@@ -38,6 +40,11 @@ export default abstract class Model {
   public static incrementIdBy = 1;
 
   /**
+   * Primary id column
+   */
+  public static primaryIdColumn = "id";
+
+  /**
    * Constructor
    */
   public constructor(public data: Record<string, any> = {}) {
@@ -67,7 +74,7 @@ export default abstract class Model {
     modelData.id = await this.generateNextId();
 
     // perform the insertion
-    const result = await query.insertOne(data);
+    const result = await query.insertOne(modelData);
 
     modelData._id = result.insertedId;
 
@@ -75,22 +82,11 @@ export default abstract class Model {
   }
 
   /**
-   * Generate next id
-   */
-  public static async generateNextId() {
-    return await masterMind.generateNextId(
-      this.collectionName,
-      this.incrementIdBy,
-      this.initialId,
-    );
-  }
-
-  /**
    * Update model by the given id
    */
   public static async update<T>(
     this: BaseModel<T>,
-    id: string,
+    id: PrimaryIdType,
     data: Record<string, any>,
   ): Promise<T> {
     // get the query of the current collection
@@ -99,7 +95,7 @@ export default abstract class Model {
     // execute the update operation
 
     const filter = {
-      _id: id,
+      [this.primaryIdColumn]: id,
     };
 
     const result = await query.findOneAndUpdate(
@@ -120,13 +116,13 @@ export default abstract class Model {
    */
   public static async replace<T>(
     this: BaseModel<T>,
-    id: string,
+    id: PrimaryIdType,
     data: Record<string, any>,
   ): Promise<T> {
     const query = this.query();
 
     const filter = {
-      _id: id,
+      [this.primaryIdColumn]: id,
     };
 
     const result = await query.findOneAndReplace(filter, data, {
@@ -166,8 +162,8 @@ export default abstract class Model {
   /**
    * Find document by id
    */
-  public static async find<T>(this: BaseModel<T>, id: string) {
-    return this.findBy("_id", id);
+  public static async find<T>(this: BaseModel<T>, id: PrimaryIdType) {
+    return this.findBy(this.primaryIdColumn, id);
   }
 
   /**
@@ -240,13 +236,17 @@ export default abstract class Model {
    */
   public static async delete<T>(
     this: BaseModel<T>,
-    filter: ObjectId | Record<string, any>,
+    filter: PrimaryIdType | Record<string, any>,
   ): Promise<number> {
     const query = this.query();
 
-    if (filter instanceof ObjectId) {
+    if (
+      filter instanceof ObjectId ||
+      typeof filter === "string" ||
+      typeof filter === "number"
+    ) {
       const result = await query.deleteOne({
-        _id: filter,
+        [this.primaryIdColumn]: filter,
       });
 
       return result.deletedCount;
@@ -255,6 +255,24 @@ export default abstract class Model {
     const result = await query.deleteMany(filter);
 
     return result.deletedCount;
+  }
+
+  /**
+   * Generate next id
+   */
+  public static async generateNextId() {
+    return await masterMind.generateNextId(
+      this.collectionName,
+      this.incrementIdBy,
+      this.initialId,
+    );
+  }
+
+  /**
+   * Get last id of current model
+   */
+  public static async getLastId() {
+    return await masterMind.getLastId(this.collectionName);
   }
 
   /**

@@ -12,6 +12,19 @@ export class MasterMind {
   protected connection: Connection = connection;
 
   /**
+   * Get last id of the given collection
+   */
+  public async getLastId(collectionName: string): Promise<number> {
+    const query = this.connection.database.collection(this.collectionName);
+
+    const collectionDocument = await query.findOne({
+      collection: collectionName,
+    });
+
+    return collectionDocument ? collectionDocument.id : 0;
+  }
+
+  /**
    * Generate next id for the given collection name
    */
   public async generateNextId(

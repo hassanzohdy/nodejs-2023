@@ -13,5 +13,7 @@ setTimeout(async () => {
     name: "hasan",
   });
 
-  console.log(user.data);
+  const user2 = await User.find(user.data._id);
+
+  console.log(user2?.data);
 }, 4000);
