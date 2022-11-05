@@ -9,11 +9,7 @@ router.get("/users/:id", getUser);
 router.post("/users", createUser);
 
 setTimeout(async () => {
-  const user = await User.create({
-    name: "hasan",
-  });
+  const user = await User.find(1);
 
-  const user2 = await User.find(user.data._id);
-
-  console.log(user2?.data);
+  if (!user) return;
 }, 4000);
