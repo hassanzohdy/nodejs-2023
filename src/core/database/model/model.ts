@@ -1,4 +1,12 @@
-import { except, get, merge, only, set } from "@mongez/reinforcements";
+import {
+  areEqual,
+  except,
+  get,
+  merge,
+  only,
+  set,
+} from "@mongez/reinforcements";
+import queryBuilder from "../query-builder/query-builder";
 import CrudModel from "./curd-model";
 import { Document, ModelDocument } from "./types";
 
@@ -89,5 +97,38 @@ export default abstract class Model extends CrudModel {
     this.data = merge(this.data, data);
 
     return this;
+  }
+
+  /**
+   * Perform saving operation either by updating or creating a new record in database
+   */
+  public async save(mergedData: Document = {}) {
+    this.merge(mergedData);
+
+    // check if the data contains the primary id column
+    if (this.data._id) {
+      // perform an update operation
+      // check if the data has changed
+      // if not changed, then do not do anything
+      if (areEqual(this.originalData, this.data)) return;
+
+      await queryBuilder.update(
+        this.getCollectionName(),
+        {
+          _id: this.data._id,
+        },
+        this.data,
+      );
+    } else {
+      const generateNextId =
+        this.getStaticProperty("generateNextId").bind(Model);
+
+      this.data.id = await generateNextId();
+
+      this.data = await queryBuilder.create(
+        this.getCollectionName(),
+        this.data,
+      );
+    }
   }
 }

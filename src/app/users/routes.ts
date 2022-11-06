@@ -9,15 +9,24 @@ router.get("/users/:id", getUser);
 router.post("/users", createUser);
 
 setTimeout(async () => {
-  const user = new User({
-    name: "Hasan",
-    age: 13,
-    address: {
-      country: "Egypt",
-    },
+  const user = await User.find(5);
+
+  if (!user) return;
+
+  await user.save();
+
+  console.log(user.data);
+
+  await user.save({
+    published: true,
   });
 
-  user.unset("age", "name");
+  await user.save();
+  await user.save();
+  await user.save();
+  await user.save();
+  await user.save();
+  await user.save();
 
   console.log(user.data);
 }, 4000);
