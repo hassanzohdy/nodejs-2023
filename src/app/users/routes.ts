@@ -9,17 +9,11 @@ router.get("/users/:id", getUser);
 router.post("/users", createUser);
 
 setTimeout(async () => {
-  const user = await User.create({
+  const user = new User({
     name: "Test",
   });
 
   console.log(user.data);
 
-  setTimeout(async () => {
-    user.set("published", true);
-
-    await user.save();
-
-    console.log(user.data);
-  }, 3000);
+  await user.destroy();
 }, 4000);

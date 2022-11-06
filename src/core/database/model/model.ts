@@ -139,4 +139,15 @@ export default abstract class Model extends CrudModel {
       );
     }
   }
+
+  /**
+   * Delete the document form database
+   */
+  public async destroy() {
+    if (!this.data._id) return;
+
+    await queryBuilder.deleteOne(this.getCollectionName(), {
+      _id: this.data._id,
+    });
+  }
 }
