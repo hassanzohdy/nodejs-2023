@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
-import BaseModel from "./bae-model";
+import queryBuilder from "../query-builder/query-builder";
+import BaseModel from "./base-model";
 import {
   ChildModel,
   Document,
@@ -18,19 +19,14 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     data: Document,
   ): Promise<T> {
-    // 1- get the query of the collection
-    const query = this.query();
-
     const modelData = { ...data };
 
     modelData.id = await this.generateNextId();
 
     // perform the insertion
-    const result = await query.insertOne(modelData);
+    const result = await queryBuilder.create(this.collectionName, modelData);
 
-    modelData._id = result.insertedId;
-
-    return this.self(modelData);
+    return this.self(result);
   }
 
   /**
@@ -40,27 +36,16 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     id: PrimaryIdType,
     data: Document,
-  ): Promise<T> {
-    // get the query of the current collection
-    const query = this.query();
-
+  ): Promise<T | null> {
     // execute the update operation
 
     const filter = {
       [this.primaryIdColumn]: id,
     };
 
-    const result = await query.findOneAndUpdate(
-      filter,
-      {
-        $set: data,
-      },
-      {
-        returnDocument: "after",
-      },
-    );
+    const result = await queryBuilder.update(this.collectionName, filter, data);
 
-    return this.self(result.value as ModelDocument);
+    return result ? this.self(result as ModelDocument) : null;
   }
 
   /**
@@ -70,18 +55,18 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     id: PrimaryIdType,
     data: Document,
-  ): Promise<T> {
-    const query = this.query();
-
+  ): Promise<T | null> {
     const filter = {
       [this.primaryIdColumn]: id,
     };
 
-    const result = await query.findOneAndReplace(filter, data, {
-      returnDocument: "after",
-    });
+    const result = await queryBuilder.replace(
+      this.collectionName,
+      filter,
+      data,
+    );
 
-    return this.self(result.value as ModelDocument);
+    return result ? this.self(result as ModelDocument) : null;
   }
 
   /**
@@ -92,23 +77,11 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     filter: ModelDocument,
     data: Document,
-  ): Promise<T> {
-    // get the query of the current collection
-    const query = this.query();
-
+  ): Promise<T | null> {
     // execute the update operation
-    const result = await query.findOneAndUpdate(
-      filter,
-      {
-        $set: data,
-      },
-      {
-        returnDocument: "after",
-        upsert: true,
-      },
-    );
+    const result = await queryBuilder.upsert(this.collectionName, filter, data);
 
-    return this.self(result.value as ModelDocument);
+    return result ? this.self(result as ModelDocument) : null;
   }
 
   /**
