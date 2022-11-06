@@ -115,9 +115,7 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     filter: Filter = {},
   ): Promise<T[]> {
-    const query = this.query();
-
-    const documents = await query.find(filter).toArray();
+    const documents = await queryBuilder.list(this.collectionName, filter);
 
     return documents.map(document => this.self(document));
   }
@@ -131,15 +129,18 @@ export default abstract class CrudModel extends BaseModel {
     page: number,
     limit: number,
   ): Promise<PaginationListing<T>> {
-    const query = this.query();
+    const documents = await queryBuilder.list(
+      this.collectionName,
+      filter,
+      query => {
+        query.skip((page - 1) * limit).limit(limit);
+      },
+    );
 
-    const documents = await query
-      .find(filter)
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .toArray();
-
-    const totalDocumentsOfFilter = await query.countDocuments(filter);
+    const totalDocumentsOfFilter = await queryBuilder.count(
+      this.collectionName,
+      filter,
+    );
 
     const result: PaginationListing<T> = {
       documents: documents.map(document => this.self(document)),
@@ -156,6 +157,13 @@ export default abstract class CrudModel extends BaseModel {
   }
 
   /**
+   * Count total documents based on the given filter
+   */
+  public static async count(filter: Filter = {}) {
+    return await queryBuilder.count(this.collectionName, filter);
+  }
+
+  /**
    * Delete single document if the given filter is an ObjectId of mongodb
    * Otherwise, delete multiple documents based on the given filter object
    */
@@ -163,22 +171,18 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     filter: PrimaryIdType | Filter,
   ): Promise<number> {
-    const query = this.query();
-
     if (
       filter instanceof ObjectId ||
       typeof filter === "string" ||
       typeof filter === "number"
     ) {
-      const result = await query.deleteOne({
+      return (await queryBuilder.deleteOne(this.collectionName, {
         [this.primaryIdColumn]: filter,
-      });
-
-      return result.deletedCount;
+      }))
+        ? 1
+        : 0;
     }
 
-    const result = await query.deleteMany(filter);
-
-    return result.deletedCount;
+    return await queryBuilder.delete(this.collectionName, filter);
   }
 }

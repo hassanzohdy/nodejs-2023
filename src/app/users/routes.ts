@@ -1,3 +1,4 @@
+import queryBuilder from "core/database/query-builder/query-builder";
 import router from "core/router";
 import createUser from "./controllers/create-user";
 import getUser from "./controllers/get-user";
@@ -9,9 +10,9 @@ router.get("/users/:id", getUser);
 router.post("/users", createUser);
 
 setTimeout(async () => {
-  const user = await User.find(1);
+  const totalUsers = await queryBuilder.count("users");
 
-  if (!user) return;
+  const totalUsers2 = await User.count();
 
-  const id = user.data.id;
+  console.log(totalUsers, totalUsers2);
 }, 4000);

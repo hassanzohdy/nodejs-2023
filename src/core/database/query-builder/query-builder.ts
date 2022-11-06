@@ -1,3 +1,4 @@
+import { FindCursor, FindOptions } from "mongodb";
 import connection, { Connection } from "../connection";
 import { Document, Filter, ModelDocument } from "../model/types";
 
@@ -94,6 +95,71 @@ export class QueryBuilder {
     );
 
     return result.ok ? result.value : null;
+  }
+
+  /**
+   * Perform a single delete operation for the given collection
+   */
+  public async deleteOne(
+    collectionName: string,
+    filter: Filter,
+  ): Promise<boolean> {
+    const query = this.query(collectionName);
+
+    const result = await query.deleteOne(filter);
+
+    return result.deletedCount > 0;
+  }
+
+  /**
+   * Delete multiple documents from the given collection
+   */
+  public async delete(collectionName: string, filter: Filter): Promise<number> {
+    const query = this.query(collectionName);
+
+    const result = await query.deleteMany(filter);
+
+    return result.deletedCount;
+  }
+
+  /**
+   * Find a single document for the given collection with the given filter
+   */
+  public async first(
+    collectionName: string,
+    filter: Filter,
+    findOptions?: FindOptions,
+  ) {
+    const query = this.query(collectionName);
+
+    return await query.findOne(filter, findOptions);
+  }
+
+  /**
+   * Find multiple document for the given collection with the given filter
+   */
+  public async list(
+    collectionName: string,
+    filter: Filter,
+    queryHandler?: (query: FindCursor) => void,
+    findOptions?: FindOptions,
+  ) {
+    const query = this.query(collectionName);
+
+    const findOperation = query.find(filter, findOptions);
+
+    if (queryHandler) {
+      queryHandler(findOperation);
+    }
+
+    return await findOperation.toArray();
+  }
+
+  /**
+   * Count documents for the given collection with the given filter
+   */
+  public async count(collectionName: string, filter: Filter = {}) {
+    return await this.query(collectionName).countDocuments(filter);
   }
 }
 
