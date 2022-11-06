@@ -164,6 +164,42 @@ export default abstract class CrudModel extends BaseModel {
   }
 
   /**
+   * Get first model for the given filter
+   */
+  public static async first<T>(
+    this: ChildModel<T>,
+    filter: Filter = {},
+  ): Promise<T | null> {
+    const result = await queryBuilder.first(this.collectionName, filter);
+
+    return result ? this.self(result) : null;
+  }
+
+  /**
+   * Get last model for the given filter
+   */
+  public static async last<T>(
+    this: ChildModel<T>,
+    filter: Filter = {},
+  ): Promise<T | null> {
+    const result = await queryBuilder.last(this.collectionName, filter);
+
+    return result ? this.self(result) : null;
+  }
+
+  /**
+   * Get latest documents
+   */
+  public static async latest<T>(
+    this: ChildModel<T>,
+    filter: Filter = {},
+  ): Promise<T[]> {
+    const documents = await queryBuilder.latest(this.collectionName, filter);
+
+    return documents.map(document => this.self(document));
+  }
+
+  /**
    * Delete single document if the given filter is an ObjectId of mongodb
    * Otherwise, delete multiple documents based on the given filter object
    */

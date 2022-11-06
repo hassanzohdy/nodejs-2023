@@ -127,12 +127,29 @@ export class QueryBuilder {
    */
   public async first(
     collectionName: string,
-    filter: Filter,
+    filter: Filter = {},
     findOptions?: FindOptions,
   ) {
     const query = this.query(collectionName);
 
     return await query.findOne(filter, findOptions);
+  }
+
+  /**
+   * Find last document for the given collection with the given filter
+   */
+  public async last(collectionName: string, filter: Filter = {}) {
+    const query = this.query(collectionName);
+
+    const results = await query
+      .find(filter)
+      .sort({
+        _id: "desc",
+      })
+      .limit(1)
+      .toArray();
+
+    return results.length > 0 ? results[0] : null;
   }
 
   /**
@@ -153,6 +170,20 @@ export class QueryBuilder {
     }
 
     return await findOperation.toArray();
+  }
+
+  /**
+   * Find latest documents for the given collection with the given filter
+   */
+  public async latest(collectionName: string, filter: Filter = {}) {
+    const query = this.query(collectionName);
+
+    return await query
+      .find(filter)
+      .sort({
+        _id: "desc",
+      })
+      .toArray();
   }
 
   /**
