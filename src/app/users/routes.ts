@@ -9,11 +9,15 @@ router.get("/users/:id", getUser);
 router.post("/users", createUser);
 
 setTimeout(async () => {
-  const user = await User.latest();
+  const user = new User({
+    name: "Hasan",
+    age: 13,
+    address: {
+      country: "Egypt",
+    },
+  });
 
-  console.log(user[0]);
+  user.unset("age", "name");
 
-  const listUser = await User.list(); // asc
-
-  console.log(listUser[0]);
+  console.log(user.data);
 }, 4000);

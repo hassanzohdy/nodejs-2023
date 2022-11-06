@@ -3,7 +3,6 @@ import connection, { Connection } from "../connection";
 import { Database } from "../database";
 import masterMind from "./master-mind";
 import Model from "./model";
-import { ModelDocument } from "./types";
 
 export default abstract class BaseModel {
   /**
@@ -30,13 +29,6 @@ export default abstract class BaseModel {
    * Primary id column
    */
   public static primaryIdColumn = "id";
-
-  /**
-   * Constructor
-   */
-  public constructor(public data: Partial<ModelDocument> = {}) {
-    //
-  }
 
   /**
    * Get collection query
