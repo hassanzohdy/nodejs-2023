@@ -76,7 +76,7 @@ export default abstract class Model extends CrudModel {
   /**
    * Replace the entire document data with the given new data
    */
-  public replace(data: Document) {
+  public replaceWith(data: Document) {
     if (!data.id && this.data.id) {
       data.id = this.data.id;
     }
@@ -112,6 +112,8 @@ export default abstract class Model extends CrudModel {
       // if not changed, then do not do anything
       if (areEqual(this.originalData, this.data)) return;
 
+      this.data.updatedAt = new Date();
+
       await queryBuilder.update(
         this.getCollectionName(),
         {
@@ -120,10 +122,16 @@ export default abstract class Model extends CrudModel {
         this.data,
       );
     } else {
+      // creating a new document in the database
       const generateNextId =
         this.getStaticProperty("generateNextId").bind(Model);
 
       this.data.id = await generateNextId();
+
+      const now = new Date();
+
+      this.data.createdAt = now;
+      this.data.updatedAt = now;
 
       this.data = await queryBuilder.create(
         this.getCollectionName(),

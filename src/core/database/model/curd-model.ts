@@ -19,14 +19,12 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     data: Document,
   ): Promise<T> {
-    const modelData = { ...data };
+    const model = this.self(data); // get new instance of model
 
-    modelData.id = await this.generateNextId();
+    // save the model, and generate the proper columns needed
+    await model.save();
 
-    // perform the insertion
-    const result = await queryBuilder.create(this.collectionName, modelData);
-
-    return this.self(result);
+    return model;
   }
 
   /**
@@ -37,15 +35,14 @@ export default abstract class CrudModel extends BaseModel {
     id: PrimaryIdType,
     data: Document,
   ): Promise<T | null> {
+    const model = (await this.find(id)) as any;
     // execute the update operation
 
-    const filter = {
-      [this.primaryIdColumn]: id,
-    };
+    if (!model) return null;
 
-    const result = await queryBuilder.update(this.collectionName, filter, data);
+    await model.save(data);
 
-    return result ? this.self(result as ModelDocument) : null;
+    return model;
   }
 
   /**
@@ -56,17 +53,15 @@ export default abstract class CrudModel extends BaseModel {
     id: PrimaryIdType,
     data: Document,
   ): Promise<T | null> {
-    const filter = {
-      [this.primaryIdColumn]: id,
-    };
+    const model = (await this.find(id)) as any;
 
-    const result = await queryBuilder.replace(
-      this.collectionName,
-      filter,
-      data,
-    );
+    if (!model) return null;
 
-    return result ? this.self(result as ModelDocument) : null;
+    model.replaceWith(data);
+
+    await model.save();
+
+    return model;
   }
 
   /**
@@ -77,11 +72,18 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     filter: ModelDocument,
     data: Document,
-  ): Promise<T | null> {
-    // execute the update operation
-    const result = await queryBuilder.upsert(this.collectionName, filter, data);
+  ): Promise<T> {
+    let model = (await this.first(filter)) as any;
 
-    return result ? this.self(result as ModelDocument) : null;
+    if (!model) {
+      model = this.self({ ...data, ...filter });
+    } else {
+      model.merge(data);
+    }
+
+    await model.save();
+
+    return model;
   }
 
   /**
