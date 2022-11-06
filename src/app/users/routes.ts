@@ -12,4 +12,6 @@ setTimeout(async () => {
   const user = await User.find(1);
 
   if (!user) return;
+
+  const id = user.data.id;
 }, 4000);

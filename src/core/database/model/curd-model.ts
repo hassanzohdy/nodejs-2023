@@ -1,6 +1,13 @@
 import { ObjectId } from "mongodb";
 import BaseModel from "./bae-model";
-import { ChildModel, PaginationListing, PrimaryIdType } from "./types";
+import {
+  ChildModel,
+  Document,
+  Filter,
+  ModelDocument,
+  PaginationListing,
+  PrimaryIdType,
+} from "./types";
 
 export default abstract class CrudModel extends BaseModel {
   /**
@@ -9,7 +16,7 @@ export default abstract class CrudModel extends BaseModel {
    */
   public static async create<T>(
     this: ChildModel<T>,
-    data: Record<string, any>,
+    data: Document,
   ): Promise<T> {
     // 1- get the query of the collection
     const query = this.query();
@@ -32,7 +39,7 @@ export default abstract class CrudModel extends BaseModel {
   public static async update<T>(
     this: ChildModel<T>,
     id: PrimaryIdType,
-    data: Record<string, any>,
+    data: Document,
   ): Promise<T> {
     // get the query of the current collection
     const query = this.query();
@@ -53,7 +60,7 @@ export default abstract class CrudModel extends BaseModel {
       },
     );
 
-    return this.self(result.value as Record<string, any>);
+    return this.self(result.value as ModelDocument);
   }
 
   /**
@@ -62,7 +69,7 @@ export default abstract class CrudModel extends BaseModel {
   public static async replace<T>(
     this: ChildModel<T>,
     id: PrimaryIdType,
-    data: Record<string, any>,
+    data: Document,
   ): Promise<T> {
     const query = this.query();
 
@@ -74,7 +81,7 @@ export default abstract class CrudModel extends BaseModel {
       returnDocument: "after",
     });
 
-    return this.self(result.value as Record<string, any>);
+    return this.self(result.value as ModelDocument);
   }
 
   /**
@@ -83,8 +90,8 @@ export default abstract class CrudModel extends BaseModel {
    */
   public static async upsert<T>(
     this: ChildModel<T>,
-    filter: Record<string, any>,
-    data: Record<string, any>,
+    filter: ModelDocument,
+    data: Document,
   ): Promise<T> {
     // get the query of the current collection
     const query = this.query();
@@ -101,7 +108,7 @@ export default abstract class CrudModel extends BaseModel {
       },
     );
 
-    return this.self(result.value as Record<string, any>);
+    return this.self(result.value as ModelDocument);
   }
 
   /**
@@ -125,7 +132,7 @@ export default abstract class CrudModel extends BaseModel {
       [column]: value,
     });
 
-    return result ? this.self(result as Record<string, any>) : null;
+    return result ? this.self(result as ModelDocument) : null;
   }
 
   /**
@@ -133,7 +140,7 @@ export default abstract class CrudModel extends BaseModel {
    */
   public static async list<T>(
     this: ChildModel<T>,
-    filter: Record<string, any> = {},
+    filter: Filter = {},
   ): Promise<T[]> {
     const query = this.query();
 
@@ -147,7 +154,7 @@ export default abstract class CrudModel extends BaseModel {
    */
   public static async paginate<T>(
     this: ChildModel<T>,
-    filter: Record<string, any>,
+    filter: Filter,
     page: number,
     limit: number,
   ): Promise<PaginationListing<T>> {
@@ -181,7 +188,7 @@ export default abstract class CrudModel extends BaseModel {
    */
   public static async delete<T>(
     this: ChildModel<T>,
-    filter: PrimaryIdType | Record<string, any>,
+    filter: PrimaryIdType | Filter,
   ): Promise<number> {
     const query = this.query();
 

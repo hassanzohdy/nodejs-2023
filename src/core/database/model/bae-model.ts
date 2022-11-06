@@ -3,6 +3,7 @@ import connection, { Connection } from "../connection";
 import { Database } from "../database";
 import masterMind from "./master-mind";
 import Model from "./model";
+import { ModelDocument } from "./types";
 
 export default abstract class BaseModel {
   /**
@@ -33,7 +34,7 @@ export default abstract class BaseModel {
   /**
    * Constructor
    */
-  public constructor(public data: Record<string, any> = {}) {
+  public constructor(public data: Partial<ModelDocument> = {}) {
     //
   }
 
