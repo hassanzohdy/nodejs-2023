@@ -65,6 +65,34 @@ export default abstract class CrudModel extends BaseModel {
   }
 
   /**
+   * Restore the document from trash
+   */
+  public static async restore<T>(
+    this: ChildModel<T>,
+    id: PrimaryIdType,
+  ): Promise<T | null> {
+    // retrieve the document from trash collection
+    const result = await queryBuilder.first(this.collectionName + "Trash", {
+      [this.primaryIdColumn]: id,
+    });
+
+    if (!result) return null;
+
+    const document = result.document;
+
+    // otherwise, create a new model with it
+    document.restoredAt = new Date();
+
+    const model = this.self(document);
+
+    model.markAsRestored();
+
+    await model.save(); // save again in the same collection
+
+    return model;
+  }
+
+  /**
    * Find and update the document for the given filter with the given data or create a new document/record
    * if filter has no matching
    */

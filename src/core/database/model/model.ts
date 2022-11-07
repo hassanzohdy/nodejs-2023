@@ -19,12 +19,24 @@ export default abstract class Model extends CrudModel {
   public data: Partial<ModelDocument> = {};
 
   /**
+   * A flag to determine if the model is being restored
+   */
+  protected isRestored = false;
+
+  /**
    * Constructor
    */
   public constructor(public originalData: Partial<ModelDocument> = {}) {
     //
     super();
     this.data = { ...this.originalData };
+  }
+
+  /**
+   * Mark the current model as being restored
+   */
+  public markAsRestored() {
+    this.isRestored = true;
   }
 
   /**
@@ -106,7 +118,7 @@ export default abstract class Model extends CrudModel {
     this.merge(mergedData);
 
     // check if the data contains the primary id column
-    if (this.data._id) {
+    if (this.data._id && !this.isRestored) {
       // perform an update operation
       // check if the data has changed
       // if not changed, then do not do anything
@@ -126,12 +138,19 @@ export default abstract class Model extends CrudModel {
       const generateNextId =
         this.getStaticProperty("generateNextId").bind(Model);
 
-      this.data.id = await generateNextId();
+      if (!this.data.id) {
+        this.data.id = await generateNextId();
+      }
 
       const now = new Date();
 
-      this.data.createdAt = now;
-      this.data.updatedAt = now;
+      if (!this.data.createdAt) {
+        this.data.createdAt = now;
+      }
+
+      if (!this.data.updatedAt) {
+        this.data.updatedAt = now;
+      }
 
       this.data = await queryBuilder.create(
         this.getCollectionName(),
@@ -145,6 +164,15 @@ export default abstract class Model extends CrudModel {
    */
   public async destroy() {
     if (!this.data._id) return;
+
+    this.data.deletedAt = new Date();
+
+    // users -> userTrash
+    await queryBuilder.create(this.getCollectionName() + "Trash", {
+      document: this.data,
+      _id: this.data._id,
+      id: this.data.id,
+    });
 
     await queryBuilder.deleteOne(this.getCollectionName(), {
       _id: this.data._id,
