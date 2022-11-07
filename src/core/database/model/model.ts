@@ -188,7 +188,6 @@ export default abstract class Model extends CrudModel {
     }
 
     this.originalData = this.data;
-    console.log(this.originalData);
   }
 
   /**
