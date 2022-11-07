@@ -13,6 +13,7 @@ setTimeout(async () => {
     isActive: "0",
     isPhoneVerified: "",
     joinDate: "2022-05-04",
+    password: "1234556",
   });
 
   console.log(user.data);

@@ -8,6 +8,7 @@
     "@mongez/dotenv": "^1.0.2",
     "@mongez/fs": "^1.1.6",
     "@mongez/node": "^1.0.1",
+    "@mongez/password": "^1.0.1",
     "@mongez/reinforcements": "^2.1.0",
     "@mongez/supportive-is": "^1.0.9",
     "chalk": "4",
