@@ -6,6 +6,7 @@ import {
   only,
   set,
 } from "@mongez/reinforcements";
+import Is from "@mongez/supportive-is";
 import queryBuilder from "../query-builder/query-builder";
 import CrudModel from "./curd-model";
 import { Document, ModelDocument } from "./types";
@@ -17,6 +18,12 @@ export default abstract class Model extends CrudModel {
    * Model Document data
    */
   public data: Partial<ModelDocument> = {};
+
+  /**
+   * Define Default value data that will be merged with the models' data
+   * on the create process
+   */
+  public defaultValue: Document = {};
 
   /**
    * A flag to determine if the model is being restored
@@ -138,16 +145,22 @@ export default abstract class Model extends CrudModel {
       const generateNextId =
         this.getStaticProperty("generateNextId").bind(Model);
 
+      // check for default values and merge it with the data
+      this.checkDefaultValues();
+
+      // if the column does not exist, then create it
       if (!this.data.id) {
         this.data.id = await generateNextId();
       }
 
       const now = new Date();
 
+      // if the column does not exist, then create it
       if (!this.data.createdAt) {
         this.data.createdAt = now;
       }
 
+      // if the column does not exist, then create it
       if (!this.data.updatedAt) {
         this.data.updatedAt = now;
       }
@@ -157,6 +170,17 @@ export default abstract class Model extends CrudModel {
         this.data,
       );
     }
+  }
+
+  /**
+   * Check for default values
+   */
+  protected checkDefaultValues() {
+    // if default value is empty, then do nothing
+    if (Is.empty(this.defaultValue)) return;
+
+    // merge the data with default value
+    this.data = merge(this.defaultValue, this.data);
   }
 
   /**

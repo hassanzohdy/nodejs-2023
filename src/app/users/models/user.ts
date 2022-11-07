@@ -1,4 +1,5 @@
 import { Model } from "core/database";
+import { Document } from "core/database/model/types";
 
 export default class User extends Model {
   /**
@@ -6,7 +7,12 @@ export default class User extends Model {
    */
   public static collectionName = "users";
 
-  public getName() {
-    return this.data.name;
-  }
+  /**
+   * {@inheritDoc}
+   */
+  public defaultValue: Document = {
+    isActive: true,
+    isEmailVerified: false,
+    isPhoneVerified: false,
+  };
 }
