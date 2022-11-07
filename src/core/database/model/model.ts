@@ -141,7 +141,7 @@ export default abstract class Model extends CrudModel {
   }
 
   /**
-   * Delete the document form database
+   * Destroy the model and delete it from database collection
    */
   public async destroy() {
     if (!this.data._id) return;

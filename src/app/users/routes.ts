@@ -10,10 +10,8 @@ router.post("/users", createUser);
 
 setTimeout(async () => {
   const user = new User({
-    name: "Test",
+    name: "Hasan",
   });
-
-  console.log(user.data);
 
   await user.destroy();
 }, 4000);
