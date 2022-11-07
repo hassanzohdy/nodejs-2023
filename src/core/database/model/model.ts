@@ -15,6 +15,11 @@ const MISSING_KEY = Symbol("MISSING_KEY");
 
 export default abstract class Model extends CrudModel {
   /**
+   * Model Initial Document data
+   */
+  public initialData: Partial<ModelDocument> = {};
+
+  /**
    * Model Document data
    */
   public data: Partial<ModelDocument> = {};
@@ -42,6 +47,8 @@ export default abstract class Model extends CrudModel {
     //
     super();
     this.data = { ...this.originalData };
+
+    this.initialData = { ...this.originalData };
   }
 
   /**
@@ -130,7 +137,7 @@ export default abstract class Model extends CrudModel {
     this.merge(mergedData);
 
     // check if the data contains the primary id column
-    if (this.data._id && !this.isRestored) {
+    if (!this.isNewModel()) {
       // perform an update operation
       // check if the data has changed
       // if not changed, then do not do anything
@@ -179,6 +186,9 @@ export default abstract class Model extends CrudModel {
         this.data,
       );
     }
+
+    this.originalData = this.data;
+    console.log(this.originalData);
   }
 
   /**
@@ -186,6 +196,8 @@ export default abstract class Model extends CrudModel {
    */
   protected castData() {
     for (const column in this.casts) {
+      if (!this.isDirty(column)) continue;
+
       let value = this.get(column);
 
       if (value === undefined) continue;
@@ -295,5 +307,26 @@ export default abstract class Model extends CrudModel {
     await queryBuilder.deleteOne(this.getCollectionName(), {
       _id: this.data._id,
     });
+  }
+
+  /**
+   * Determine if the given column is dirty column
+   *
+   * Dirty columns are columns that their values have been changed from the original data
+   */
+  public isDirty(column: string) {
+    if (this.isNewModel()) return true;
+
+    const currentValue = get(this.data, column);
+    const originalValue = get(this.originalData, column);
+
+    return areEqual(currentValue, originalValue) === false;
+  }
+
+  /**
+   * Check if current model is a new model
+   */
+  public isNewModel() {
+    return !this.data._id || (this.data._id && this.isRestored);
   }
 }

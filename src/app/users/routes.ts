@@ -9,12 +9,19 @@ router.get("/users/:id", getUser);
 router.post("/users", createUser);
 
 setTimeout(async () => {
-  const user = await User.create({
+  const user = new User({
     isActive: "0",
     isPhoneVerified: "",
     joinDate: "2022-05-04",
     password: "1234556",
   });
 
+  await user.save();
+
+  user.set("name", "hasan");
+
+  await user.save();
+
   console.log(user.data);
+  console.log(user.initialData);
 }, 4000);
