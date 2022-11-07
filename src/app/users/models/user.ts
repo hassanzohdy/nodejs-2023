@@ -1,5 +1,5 @@
 import { Model } from "core/database";
-import { Document } from "core/database/model/types";
+import { Casts, Document } from "core/database/model/types";
 
 export default class User extends Model {
   /**
@@ -14,5 +14,11 @@ export default class User extends Model {
     isActive: true,
     isEmailVerified: false,
     isPhoneVerified: false,
+  };
+
+  protected casts: Casts = {
+    isActive: "boolean",
+    isPhoneVerified: "boolean",
+    joinDate: "date",
   };
 }

@@ -10,8 +10,9 @@ router.post("/users", createUser);
 
 setTimeout(async () => {
   const user = await User.create({
-    name: "Hasn",
-    isActive: false,
+    isActive: "0",
+    isPhoneVerified: "",
+    joinDate: "2022-05-04",
   });
 
   console.log(user.data);

@@ -69,3 +69,22 @@ export type ModelDocument = WithId<{
    */
   [key: string]: any;
 }>;
+
+export type CustomCastType = (column: string, value: any, model: Model) => any;
+
+export type CastType =
+  | "string"
+  | "number"
+  | "int"
+  | "float"
+  | "integer"
+  | "bool"
+  | "object"
+  | "array"
+  | "date"
+  | "boolean"
+  | CustomCastType;
+
+export type Casts = {
+  [column: string]: CastType;
+};

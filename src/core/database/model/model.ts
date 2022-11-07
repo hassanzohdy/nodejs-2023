@@ -9,7 +9,7 @@ import {
 import Is from "@mongez/supportive-is";
 import queryBuilder from "../query-builder/query-builder";
 import CrudModel from "./curd-model";
-import { Document, ModelDocument } from "./types";
+import { Casts, CastType, Document, ModelDocument } from "./types";
 
 const MISSING_KEY = Symbol("MISSING_KEY");
 
@@ -29,6 +29,11 @@ export default abstract class Model extends CrudModel {
    * A flag to determine if the model is being restored
    */
   protected isRestored = false;
+
+  /**
+   * Model casts types
+   */
+  protected casts: Casts = {};
 
   /**
    * Constructor
@@ -133,6 +138,8 @@ export default abstract class Model extends CrudModel {
 
       this.data.updatedAt = new Date();
 
+      this.castData();
+
       await queryBuilder.update(
         this.getCollectionName(),
         {
@@ -165,10 +172,97 @@ export default abstract class Model extends CrudModel {
         this.data.updatedAt = now;
       }
 
+      this.castData();
+
       this.data = await queryBuilder.create(
         this.getCollectionName(),
         this.data,
       );
+    }
+  }
+
+  /**
+   * Cast data before saving
+   */
+  protected castData() {
+    for (const column in this.casts) {
+      let value = this.get(column);
+
+      if (value === undefined) continue;
+
+      const castType = this.casts[column];
+
+      if (typeof castType === "function") {
+        value = castType(column, value, this);
+      } else {
+        value = this.castValue(value, castType);
+      }
+
+      this.set(column, value);
+    }
+  }
+
+  /**
+   * Cast the given value based on the given cast type
+   */
+  protected castValue(value: any, castType: CastType) {
+    switch (castType) {
+      case "string":
+        return String(value);
+
+      case "number":
+        return Number(value);
+
+      case "int":
+      case "integer":
+        return parseInt(value);
+
+      case "float":
+        return parseFloat(value);
+
+      case "bool":
+      case "boolean":
+        if (value === "true") return true;
+
+        if (value === "false" || value === "0" || value === 0) return false;
+
+        return Boolean(value);
+
+      case "date":
+        if (typeof value === "string") {
+          return new Date(value);
+        }
+
+        // timestamp
+        if (typeof value === "number") {
+          // timestamp in seconds
+          return new Date(value * 1000);
+        }
+
+        if (value instanceof Date) {
+          return value;
+        }
+
+        return new Date();
+
+      case "object":
+        if (!value) return {};
+
+        if (typeof value === "string") {
+          return JSON.parse(value);
+        }
+
+        return value;
+      case "array":
+        if (!value) return [];
+
+        if (typeof value === "string") {
+          return JSON.parse(value);
+        }
+
+        return value;
+      default:
+        return value;
     }
   }
 
