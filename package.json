@@ -6,6 +6,7 @@
     "@fastify/multipart": "^7.3.0",
     "@mongez/config": "^1.0.24",
     "@mongez/dotenv": "^1.0.2",
+    "@mongez/events": "^1.0.9",
     "@mongez/fs": "^1.1.6",
     "@mongez/node": "^1.0.1",
     "@mongez/password": "^1.0.1",

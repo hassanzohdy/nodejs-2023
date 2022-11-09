@@ -1,7 +1,10 @@
 import config from "@mongez/config";
+import events from "@mongez/events";
 import chalk from "chalk";
 import { MongoClient } from "mongodb";
 import database, { Database } from "./database";
+
+export type ConnectionEvent = "connected" | "error" | "close";
 
 export class Connection {
   /**
@@ -32,6 +35,13 @@ export class Connection {
 
       this.database = database.setDatabase(mongoDBDatabase);
 
+      this.trigger("connected", this);
+
+      // listen on connection close
+      this.client.on("close", () => {
+        this.trigger("close", this);
+      });
+
       console.log(
         chalk.green("Connected!"),
         !username || !password
@@ -39,8 +49,22 @@ export class Connection {
           : "",
       );
     } catch (error) {
-      console.log(error);
+      this.trigger("error", error);
     }
+  }
+
+  /**
+   * Trigger the given event
+   */
+  protected trigger(eventName: ConnectionEvent, ...args: any[]) {
+    return events.trigger(`database.connection.${eventName}`, ...args);
+  }
+
+  /**
+   * Subscribe to one of connection events
+   */
+  public on(eventName: ConnectionEvent, callback: any) {
+    return events.subscribe(`database.connection.${eventName}`, callback);
   }
 
   /**

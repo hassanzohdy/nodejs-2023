@@ -819,6 +819,11 @@
     "@mongez/reinforcements" "^2.x.x"
     "@mongez/supportive-is" "^1.x.x"
 
+"@mongez/events@^1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@mongez/events/-/events-1.0.9.tgz#8d9c3d3830c5973740b76869ac3a08d64a7fbdbc"
+  integrity sha512-6vJaOeG6RE2Tzv9MsWVfBAqr5K/qESpymhlTPca5qs0bX4MGhHxAcBthhqByf6MJlAXwTGbBzoe9kmE6wGp3VA==
+
 "@mongez/fs@^1.1.6", "@mongez/fs@^1.x.x":
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/@mongez/fs/-/fs-1.1.6.tgz#a5531dea93d53570e96727c3744df16314a2cdf4"

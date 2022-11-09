@@ -1,3 +1,4 @@
+import { connection } from "core/database";
 import router from "core/router";
 import createUser from "./controllers/create-user";
 import getUser from "./controllers/get-user";
@@ -8,7 +9,12 @@ router.get("/users", usersList);
 router.get("/users/:id", getUser);
 router.post("/users", createUser);
 
-setTimeout(async () => {
+connection.on("error", (error: any) => {
+  console.log("Database Error:");
+  console.log(error);
+});
+
+connection.on("connected", async () => {
   const user = new User({
     isActive: "0",
     isPhoneVerified: "",
@@ -18,10 +24,5 @@ setTimeout(async () => {
 
   await user.save();
 
-  user.set("name", "hasan");
-
-  await user.save();
-
   console.log(user.data);
-  console.log(user.initialData);
-}, 4000);
+});
