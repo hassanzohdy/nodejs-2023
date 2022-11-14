@@ -58,3 +58,23 @@ export type ValidationConfigurations = {
    */
   rules?: Record<string, typeof Rule>;
 };
+
+/* Validation Event Types */
+export type ValidationEvent =
+  /**
+   * Triggered before validation starts
+   */
+  | "validating"
+  /**
+   * Triggered after validation is done either fails or passes
+   * This event is triggered before pass and fail events
+   */
+  | "done"
+  /**
+   * Triggered when validation passes with no errors
+   */
+  | "passes"
+  /**
+   * Triggered when validation fails
+   */
+  | "fails";
