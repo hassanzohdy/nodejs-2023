@@ -8,7 +8,7 @@ import {
 } from "@mongez/reinforcements";
 import Is from "@mongez/supportive-is";
 import queryBuilder from "../query-builder/query-builder";
-import CrudModel from "./curd-model";
+import CrudModel from "./crudd-model";
 import { Casts, CastType, Document, ModelDocument } from "./types";
 
 const MISSING_KEY = Symbol("MISSING_KEY");

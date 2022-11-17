@@ -1,14 +1,16 @@
-import multipart from "@fastify/multipart";
 import config from "@mongez/config";
 import router from "core/router";
-import Fastify from "fastify";
+import registerHttpPlugins from "./plugins";
+import response from "./response";
+import { getServer } from "./server";
 
 export default async function connectToServer() {
-  const server = Fastify();
+  const server = getServer();
 
-  server.register(multipart, {
-    attachFieldsToBody: true,
-  });
+  registerHttpPlugins();
+
+  // call reset method on response object to response its state
+  server.addHook("onResponse", response.reset.bind(response));
 
   router.scan(server);
 

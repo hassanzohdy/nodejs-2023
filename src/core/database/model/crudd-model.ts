@@ -72,9 +72,12 @@ export default abstract class CrudModel extends BaseModel {
     id: PrimaryIdType,
   ): Promise<T | null> {
     // retrieve the document from trash collection
-    const result = await queryBuilder.first(this.collectionName + "Trash", {
-      [this.primaryIdColumn]: id,
-    });
+    const result = await queryBuilder.first(
+      this.collectionName + "Trash",
+      this.prepareFilters({
+        [this.primaryIdColumn]: id,
+      }),
+    );
 
     if (!result) return null;
 
@@ -98,9 +101,11 @@ export default abstract class CrudModel extends BaseModel {
    */
   public static async upsert<T>(
     this: ChildModel<T>,
-    filter: ModelDocument,
+    filter: Filter,
     data: Document,
   ): Promise<T> {
+    filter = this.prepareFilters(filter);
+
     let model = (await this.first(filter)) as any;
 
     if (!model) {
@@ -129,11 +134,12 @@ export default abstract class CrudModel extends BaseModel {
     column: string,
     value: any,
   ): Promise<T | null> {
-    const query = this.query();
-
-    const result = await query.findOne({
-      [column]: value,
-    });
+    const result = await queryBuilder.first(
+      this.collectionName,
+      this.prepareFilters({
+        [column]: value,
+      }),
+    );
 
     return result ? this.self(result as ModelDocument) : null;
   }
@@ -145,7 +151,10 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     filter: Filter = {},
   ): Promise<T[]> {
-    const documents = await queryBuilder.list(this.collectionName, filter);
+    const documents = await queryBuilder.list(
+      this.collectionName,
+      this.prepareFilters(filter),
+    );
 
     return documents.map(document => this.self(document));
   }
@@ -159,6 +168,8 @@ export default abstract class CrudModel extends BaseModel {
     page: number,
     limit: number,
   ): Promise<PaginationListing<T>> {
+    filter = this.prepareFilters(filter);
+
     const documents = await queryBuilder.list(
       this.collectionName,
       filter,
@@ -190,7 +201,10 @@ export default abstract class CrudModel extends BaseModel {
    * Count total documents based on the given filter
    */
   public static async count(filter: Filter = {}) {
-    return await queryBuilder.count(this.collectionName, filter);
+    return await queryBuilder.count(
+      this.collectionName,
+      this.prepareFilters(filter),
+    );
   }
 
   /**
@@ -200,7 +214,10 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     filter: Filter = {},
   ): Promise<T | null> {
-    const result = await queryBuilder.first(this.collectionName, filter);
+    const result = await queryBuilder.first(
+      this.collectionName,
+      this.prepareFilters(filter),
+    );
 
     return result ? this.self(result) : null;
   }
@@ -212,7 +229,10 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     filter: Filter = {},
   ): Promise<T | null> {
-    const result = await queryBuilder.last(this.collectionName, filter);
+    const result = await queryBuilder.last(
+      this.collectionName,
+      this.prepareFilters(filter),
+    );
 
     return result ? this.self(result) : null;
   }
@@ -224,7 +244,10 @@ export default abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     filter: Filter = {},
   ): Promise<T[]> {
-    const documents = await queryBuilder.latest(this.collectionName, filter);
+    const documents = await queryBuilder.latest(
+      this.collectionName,
+      this.prepareFilters(filter),
+    );
 
     return documents.map(document => this.self(document));
   }
@@ -242,13 +265,28 @@ export default abstract class CrudModel extends BaseModel {
       typeof filter === "string" ||
       typeof filter === "number"
     ) {
-      return (await queryBuilder.deleteOne(this.collectionName, {
-        [this.primaryIdColumn]: filter,
-      }))
+      return (await queryBuilder.deleteOne(
+        this.collectionName,
+        this.prepareFilters({
+          [this.primaryIdColumn]: filter,
+        }),
+      ))
         ? 1
         : 0;
     }
 
     return await queryBuilder.delete(this.collectionName, filter);
+  }
+
+  /**
+   * Prepare filters
+   */
+  protected static prepareFilters(filters: Filter = {}) {
+    // if filter contains _id and it is a string, convert it to ObjectId
+    if (filters._id && typeof filters._id === "string") {
+      filters._id = new ObjectId(filters._id);
+    }
+
+    return filters;
   }
 }

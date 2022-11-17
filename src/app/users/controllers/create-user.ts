@@ -5,6 +5,7 @@ export default async function createUser(request: Request) {
 
   return {
     name,
+    email,
   };
 }
 

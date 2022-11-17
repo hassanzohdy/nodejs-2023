@@ -1,5 +1,18 @@
 import Rule from "./rules/rule";
 
+/**
+ * Validation event types
+ */
+export type ValidationEvent =
+  | "validating"
+  | "passes"
+  | "fails"
+  | "done"
+  | "customValidating"
+  | "customPasses"
+  | "customFails"
+  | "customDone";
+
 export type ValidationConfigurations = {
   /**
    * Whether to stop validator after first failed rule

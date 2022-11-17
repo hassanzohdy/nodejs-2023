@@ -1,113 +1,67 @@
-import config from "@mongez/config";
-import { only } from "@mongez/reinforcements";
-import { Validator } from "core/validator";
-import { FastifyRequest } from "fastify";
+import events from "@mongez/events";
+import { get, only } from "@mongez/reinforcements";
+import { Route } from "core/router/types";
+import { validateAll } from "core/validator";
+import { FastifyReply, FastifyRequest } from "fastify";
+import response, { Response } from "./response";
+import { RequestEvent } from "./types";
 import UploadedFile from "./UploadedFile";
 
 export class Request {
   /**
    * Fastify Request object
    */
-  public request: any;
+  public baseRequest!: FastifyRequest;
 
   /**
-   * Fastify Response eObject
+   * Response Object
    */
-  public response: any;
+  protected response: Response = response;
 
   /**
-   * Route handler
+   * Route Object
    */
-  private handler: any;
+  private route!: Route;
+
+  /**
+   * Parsed Request Payload
+   */
+  protected payload: any = {};
 
   /**
    * Set request handler
    */
   public setRequest(request: FastifyRequest) {
-    this.request = request;
+    this.baseRequest = request;
+
+    this.parsePayload();
 
     return this;
   }
 
   /**
-   * Set response handler
+   * Parse the payload and merge it from the request body, params and query string
    */
-  public setResponse(response: any) {
-    this.response = response;
-
-    return this;
+  protected parsePayload() {
+    this.payload.body = this.parseBody();
+    this.payload.query = this.baseRequest.query;
+    this.payload.params = this.baseRequest.params;
+    this.payload.all = {
+      ...this.payload.body,
+      ...this.payload.query,
+      ...this.payload.params,
+    };
   }
 
   /**
-   * Set route handler
+   * Parse body payload
    */
-  public setHandler(handler: any) {
-    this.handler = handler;
-
-    return this;
-  }
-
-  /**
-   * Execute the request
-   */
-  public async execute() {
-    if (this.handler.validation) {
-      if (this.handler.validation.rules) {
-        const validator = new Validator(this, this.handler.validation.rules);
-
-        try {
-          await validator.scan(); // start scanning the rules
-        } catch (error) {
-          console.log(error);
-        }
-
-        if (validator.fails()) {
-          const responseErrorsKey = config.get(
-            "validation.keys.response",
-            "errors",
-          );
-          const responseStatus = config.get("validation.responseStatus", 400);
-
-          return this.response.status(responseStatus).send({
-            [responseErrorsKey]: validator.errors(),
-          });
-        }
-      }
-
-      if (this.handler.validation.validate) {
-        const result = await this.handler.validation.validate(
-          this,
-          this.response,
-        );
-
-        if (result) {
-          return result;
-        }
-      }
-    }
-
-    return await this.handler(this, this.response);
-  }
-
-  /**
-   * Get request input value from query string, params or body
-   */
-  public input(key: string, defaultValue: any = null) {
-    return (
-      this.request.params[key] ||
-      this.request.query[key] ||
-      this.body[key] ||
-      defaultValue
-    );
-  }
-
-  /**
-   * Get request body
-   */
-  public get body() {
+  private parseBody() {
     const body: any = {};
-    for (const key in this.request.body) {
-      const keyData = this.request.body[key];
+    const requestBody = this.baseRequest.body as Record<string, any>;
+
+    for (const key in requestBody) {
+      const keyData = requestBody[key];
 
       if (Array.isArray(keyData)) {
         body[key] = keyData.map(this.parseInputValue.bind(this));
@@ -117,6 +71,111 @@ export class Request {
     }
 
     return body;
+  }
+
+  /**
+   * Set Fastify response
+   */
+  public setResponse(response: FastifyReply) {
+    this.response.setResponse(response);
+
+    return this;
+  }
+
+  /**
+   * Set route handler
+   */
+  public setRoute(route: Route) {
+    this.route = route;
+
+    // pass the route to the response object
+    this.response.setRoute(route);
+
+    return this;
+  }
+
+  /**
+   * Trigger an http event
+   */
+  protected trigger(eventName: RequestEvent, ...args: any[]) {
+    return events.trigger(`request.${eventName}`, ...args, this);
+  }
+
+  /**
+   * Listen to the given event
+   */
+  public on(eventName: RequestEvent, callback: any) {
+    return this.trigger(eventName, callback);
+  }
+
+  /**
+   * Execute the request
+   */
+  public async execute() {
+    // check for middleware first
+    const middlewareOutput = await this.executeMiddleware();
+
+    if (middlewareOutput !== undefined) {
+      return middlewareOutput;
+    }
+
+    const handler = this.route.handler;
+
+    // 👇🏻 check for validation using validateAll helper function
+    const validationOutput = await validateAll(
+      handler.validation,
+      this,
+      this.response,
+    );
+
+    if (validationOutput !== undefined) {
+      return validationOutput;
+    }
+
+    // call executingAction event
+    this.trigger("executingAction", this.route);
+    const output = await handler(this, this.response);
+
+    // call executedAction event
+    this.trigger("executedAction", this.route);
+
+    return output;
+  }
+
+  /**
+   * Execute middleware list of current route
+   */
+  protected async executeMiddleware() {
+    if (!this.route.middleware || this.route.middleware.length === 0) return;
+
+    // trigger the executingMiddleware event
+    this.trigger("executingMiddleware", this.route.middleware, this.route);
+
+    for (const middleware of this.route.middleware) {
+      const output = await middleware(this, this.response);
+
+      if (output !== undefined) {
+        this.trigger("executedMiddleware");
+        return output;
+      }
+    }
+
+    // trigger the executedMiddleware event
+    this.trigger("executedMiddleware", this.route.middleware, this.route);
+  }
+
+  /**
+   * Get request input value from query string, params or body
+   */
+  public input(key: string, defaultValue: any = null) {
+    return get(this.payload.all, key, defaultValue);
+  }
+
+  /**
+   * Get request body
+   */
+  public get body() {
+    return this.payload.body;
   }
 
   /**
@@ -145,25 +204,21 @@ export class Request {
    * Get request params
    */
   public get params() {
-    return this.request.params;
+    return this.payload.params;
   }
 
   /**
    * Get request query
    */
   public get query() {
-    return this.request.query;
+    return this.payload.query;
   }
 
   /**
    * Get all inputs
    */
   public all() {
-    return {
-      ...this.body,
-      ...this.params,
-      ...this.query,
-    };
+    return this.payload.all;
   }
 
   /**

@@ -1,5 +1,7 @@
+import events from "@mongez/events";
 import { Request } from "core/http/request";
 import RulesList from "./rules-list";
+import { ValidationEvent } from "./types";
 
 export default class Validator {
   /**
@@ -24,6 +26,9 @@ export default class Validator {
     // get inputs values
     const inputsValues = this.request.only(Object.keys(this.rules));
 
+    // 👇🏻 trigger the validating event
+    Validator.trigger("validating", this.rules, inputsValues, this);
+
     for (const input in this.rules) {
       const inputValue = inputsValues[input];
       const inputRules = this.rules[input];
@@ -35,6 +40,18 @@ export default class Validator {
       if (rulesList.fails()) {
         this.errorsList.push(rulesList.errors());
       }
+    }
+
+    // 👇🏻 trigger validation done
+    const passes = this.passes();
+    Validator.trigger("done", passes, this.rules, inputsValues, this);
+
+    // 👇🏻 check if validation passes, then trigger the passes event
+    // otherwise trigger fails event
+    if (passes) {
+      Validator.trigger("passes", this.rules, inputsValues, this);
+    } else {
+      Validator.trigger("fails", this.rules, inputsValues, this);
     }
   }
 
@@ -57,5 +74,22 @@ export default class Validator {
    */
   public errors() {
     return this.errorsList;
+  }
+
+  /**
+   * Trigger validation event
+   */
+  public static trigger(eventName: ValidationEvent, ...args: any[]) {
+    return events.trigger(`validation.${eventName}`, ...args);
+  }
+
+  /**
+   * Listen to the given event name
+   */
+  public static on(
+    eventName: ValidationEvent,
+    callback: (...args: any[]) => void,
+  ) {
+    return events.subscribe(`validation.${eventName}`, callback);
   }
 }
