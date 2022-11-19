@@ -15,8 +15,6 @@ export default function registerAuthRoutes() {
     // use our own jwt generator to generate a token for the guest
     const token = await jwt.generate(guest.data);
 
-    console.log(guest.data);
-
     AccessToken.create({
       token,
       // get the guest user type, id and _id

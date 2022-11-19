@@ -6,7 +6,7 @@ import getUser from "./controllers/get-user";
 import usersList from "./controllers/users-list";
 
 router.get("/users", usersList, {
-  middleware: [authMiddleware],
+  middleware: [authMiddleware("user")],
 });
 
 router.get("/users/:id", getUser);

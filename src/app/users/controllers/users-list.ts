@@ -6,9 +6,10 @@ export default async function usersList(request: Request) {
   const usersCollection = database.collection("users");
 
   // log the current user
-  console.log(user());
 
   const users = await usersCollection.find({}).toArray();
+
+  console.log(user());
 
   return {
     users,
