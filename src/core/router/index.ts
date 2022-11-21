@@ -1,5 +1,5 @@
 import request from "core/http/request";
-import { Route } from "./types";
+import { Route, RouteOptions } from "./types";
 
 export class Router {
   /**
@@ -30,11 +30,12 @@ export class Router {
   /**
    * Add get request method
    */
-  public get(path: string, handler: any) {
+  public get(path: string, handler: any, options: RouteOptions = {}) {
     this.routes.push({
       method: "GET",
       path,
       handler,
+      ...options,
     });
 
     return this;
@@ -43,11 +44,12 @@ export class Router {
   /**
    * Add post request method
    */
-  public post(path: string, handler: any) {
+  public post(path: string, handler: any, options: RouteOptions = {}) {
     this.routes.push({
       method: "POST",
       path,
       handler,
+      ...options,
     });
 
     return this;
@@ -56,11 +58,12 @@ export class Router {
   /**
    * Add put request method
    */
-  public put(path: string, handler: any) {
+  public put(path: string, handler: any, options: RouteOptions = {}) {
     this.routes.push({
       method: "PUT",
       path,
       handler,
+      ...options,
     });
 
     return this;
@@ -69,11 +72,12 @@ export class Router {
   /**
    * Add delete request method
    */
-  public delete(path: string, handler: any) {
+  public delete(path: string, handler: any, options: RouteOptions = {}) {
     this.routes.push({
       method: "DELETE",
       path,
       handler,
+      ...options,
     });
 
     return this;
@@ -82,11 +86,12 @@ export class Router {
   /**
    * Add patch request method
    */
-  public patch(path: string, handler: any) {
+  public patch(path: string, handler: any, options: RouteOptions = {}) {
     this.routes.push({
       method: "PATCH",
       path,
       handler,
+      ...options,
     });
 
     return this;
@@ -119,7 +124,7 @@ export class Router {
       request
         .setRequest(fastifyRequest)
         .setResponse(fastifyResponse)
-        .setHandler(route.handler);
+        .setRoute(route);
 
       return await request.execute();
     };

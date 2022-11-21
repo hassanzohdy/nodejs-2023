@@ -1,5 +1,6 @@
 import config from "@mongez/config";
 import { only } from "@mongez/reinforcements";
+import { Route } from "core/router/types";
 import { Validator } from "core/validator";
 import { FastifyRequest } from "fastify";
 import UploadedFile from "./UploadedFile";
@@ -16,9 +17,9 @@ export class Request {
   public response: any;
 
   /**
-   * Route handler
+   * Current Route
    */
-  private handler: any;
+  private route!: Route;
 
   /**
    * Set request handler
@@ -39,10 +40,10 @@ export class Request {
   }
 
   /**
-   * Set route handler
+   * Set current route
    */
-  public setHandler(handler: any) {
-    this.handler = handler;
+  public setRoute(route: Route) {
+    this.route = route;
 
     return this;
   }
@@ -51,9 +52,26 @@ export class Request {
    * Execute the request
    */
   public async execute() {
-    if (this.handler.validation) {
-      if (this.handler.validation.rules) {
-        const validator = new Validator(this, this.handler.validation.rules);
+    const handler = this.route.handler;
+
+    const middlewares = this.route.middleware;
+
+    if (middlewares) {
+      for (const middleware of middlewares) {
+        // call the middleware and wait for its response
+        // if the middleware returns a value
+        // then stop calling the rest of middleware and do not call the handler
+        const output = await middleware(this, this.response);
+
+        if (output) {
+          return output;
+        }
+      }
+    }
+
+    if (handler.validation) {
+      if (handler.validation.rules) {
+        const validator = new Validator(this, handler.validation.rules);
 
         try {
           await validator.scan(); // start scanning the rules
@@ -74,11 +92,8 @@ export class Request {
         }
       }
 
-      if (this.handler.validation.validate) {
-        const result = await this.handler.validation.validate(
-          this,
-          this.response,
-        );
+      if (handler.validation.validate) {
+        const result = await handler.validation.validate(this, this.response);
 
         if (result) {
           return result;
@@ -86,7 +101,7 @@ export class Request {
       }
     }
 
-    return await this.handler(this, this.response);
+    return await handler(this, this.response);
   }
 
   /**
