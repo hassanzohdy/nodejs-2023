@@ -1,7 +1,5 @@
 import { Response } from "core/http/response";
 import router from "core/router";
-import jwt from "./jwt";
-import AccessToken from "./models/access-token";
 import Guest from "./models/guest";
 
 export default function registerAuthRoutes() {
@@ -13,18 +11,12 @@ export default function registerAuthRoutes() {
     });
 
     // use our own jwt generator to generate a token for the guest
-    const token = await jwt.generate(guest.data);
-
-    AccessToken.create({
-      token,
-      // get the guest user type, id and _id
-      ...guest.only(["id", "userType", "_id"]),
-    });
+    const token = await guest.generateAccessToken();
 
     return response.send({
       accessToken: token,
       // return the user type
-      userType: guest.get("userType"),
+      userType: guest.userType,
     });
   });
 }
