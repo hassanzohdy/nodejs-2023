@@ -1,8 +1,10 @@
 import config from "@mongez/config";
+import events from "@mongez/events";
 import { only } from "@mongez/reinforcements";
 import { Route } from "core/router/types";
 import { Validator } from "core/validator";
 import { FastifyRequest } from "fastify";
+import { RequestEvent } from "./types";
 import UploadedFile from "./UploadedFile";
 
 export class Request {
@@ -49,59 +51,108 @@ export class Request {
   }
 
   /**
+   * Trigger the given event
+   */
+  protected trigger(event: RequestEvent, ...args: any[]) {
+    return events.trigger(`request.${event}`, ...args);
+  }
+
+  /**
+   * Listen to the given event name
+   */
+  public on(event: RequestEvent, callback: any) {
+    return events.subscribe(`request.${event}`, callback);
+  }
+
+  /**
    * Execute the request
    */
   public async execute() {
+    const middlewareExecutingResult = await this.executeMiddleware();
+
+    if (middlewareExecutingResult) {
+      return middlewareExecutingResult;
+    }
+
     const handler = this.route.handler;
 
+    const validation = handler.validation;
+
+    const validationResult = await this.validate(validation);
+
+    if (validationResult) {
+      return validationResult;
+    }
+
+    this.trigger("executingAction", this, this.response);
+
+    const output = await handler(this, this.response);
+
+    this.trigger("executedAction", this, this.response);
+
+    return output;
+  }
+
+  /**
+   * Execute middleware
+   */
+  protected async executeMiddleware() {
     const middlewares = this.route.middleware;
 
-    if (middlewares) {
-      for (const middleware of middlewares) {
-        // call the middleware and wait for its response
-        // if the middleware returns a value
-        // then stop calling the rest of middleware and do not call the handler
-        const output = await middleware(this, this.response);
+    if (!middlewares || middlewares.length === 0) return;
 
-        if (output) {
-          return output;
-        }
+    this.trigger("executingMiddleware", middlewares, this, this.response);
+
+    for (const middleware of middlewares) {
+      // call the middleware and wait for its response
+      // if the middleware returns a value
+      // then stop calling the rest of middleware and do not call the handler
+      const output = await middleware(this, this.response);
+
+      if (output) {
+        return output;
       }
     }
 
-    if (handler.validation) {
-      if (handler.validation.rules) {
-        const validator = new Validator(this, handler.validation.rules);
+    // end of middleware
+    this.trigger("executedMiddleware", middlewares, this, this.response);
+  }
 
-        try {
-          await validator.scan(); // start scanning the rules
-        } catch (error) {
-          console.log(error);
-        }
+  /**
+   * Validate the request
+   */
+  protected async validate(validation: any) {
+    if (!validation) return;
 
-        if (validator.fails()) {
-          const responseErrorsKey = config.get(
-            "validation.keys.response",
-            "errors",
-          );
-          const responseStatus = config.get("validation.responseStatus", 400);
+    if (validation.rules) {
+      const validator = new Validator(this, validation.rules);
 
-          return this.response.status(responseStatus).send({
-            [responseErrorsKey]: validator.errors(),
-          });
-        }
+      try {
+        await validator.scan(); // start scanning the rules
+      } catch (error) {
+        console.log(error);
       }
 
-      if (handler.validation.validate) {
-        const result = await handler.validation.validate(this, this.response);
+      if (validator.fails()) {
+        const responseErrorsKey = config.get(
+          "validation.keys.response",
+          "errors",
+        );
+        const responseStatus = config.get("validation.responseStatus", 400);
 
-        if (result) {
-          return result;
-        }
+        return this.response.status(responseStatus).send({
+          [responseErrorsKey]: validator.errors(),
+        });
       }
     }
 
-    return await handler(this, this.response);
+    if (validation.validate) {
+      const result = await validation.validate(this, this.response);
+
+      if (result) {
+        return result;
+      }
+    }
   }
 
   /**

@@ -1,4 +1,5 @@
 import { connection } from "core/database";
+import request, { Request } from "core/http/request";
 import router from "core/router";
 import { Middleware } from "core/router/types";
 import createUser from "./controllers/create-user";
@@ -15,6 +16,10 @@ const mid2: Middleware = (request, resposne) => {
 
 router.get("/users", usersList, {
   middleware: [guarded, mid2],
+});
+
+request.on("executingAction", (request: Request) => {
+  console.log("About to call the handler");
 });
 
 router.get("/users/:id", getUser);
