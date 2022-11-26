@@ -7,7 +7,7 @@ import { getServer } from "./server";
 export default async function connectToServer() {
   const server = getServer();
 
-  registerHttpPlugins();
+  await registerHttpPlugins();
 
   // call reset method on response object to response its state
   server.addHook("onResponse", response.reset.bind(response));

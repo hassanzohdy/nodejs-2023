@@ -1,4 +1,4 @@
-import { authMiddleware } from "core/auth/auth-middleware";
+// import { authMiddleware } from "core/auth/auth-middleware";
 
 const httpConfigurations = {
   middleware: {
@@ -8,7 +8,7 @@ const httpConfigurations = {
     only: {
       routes: [],
       namedRoutes: ["users.list"],
-      middleware: [authMiddleware("guest")],
+      // middleware: [authMiddleware("guest")],
     },
     // exclude the middleware from specific routes
     except: {
