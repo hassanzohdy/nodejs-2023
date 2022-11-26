@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@fastify/cors": "^8.2.0",
     "@fastify/jwt": "^6.3.3",
     "@fastify/multipart": "^7.3.0",
     "@fastify/rate-limit": "^7.5.0",
