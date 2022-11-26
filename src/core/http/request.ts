@@ -1,6 +1,7 @@
+import config from "@mongez/config";
 import events from "@mongez/events";
 import { get, only } from "@mongez/reinforcements";
-import { Route } from "core/router/types";
+import { Middleware, Route } from "core/router/types";
 import { validateAll } from "core/validator";
 import { FastifyReply, FastifyRequest } from "fastify";
 import response, { Response } from "./response";
@@ -146,12 +147,16 @@ export class Request {
    * Execute middleware list of current route
    */
   protected async executeMiddleware() {
-    if (!this.route.middleware || this.route.middleware.length === 0) return;
+    // collect all middlewares for current route
+    const middlewares = this.collectMiddlewares();
+
+    // check if there are no middlewares, then return
+    if (middlewares.length === 0) return;
 
     // trigger the executingMiddleware event
-    this.trigger("executingMiddleware", this.route.middleware, this.route);
+    this.trigger("executingMiddleware", middlewares, this.route);
 
-    for (const middleware of this.route.middleware) {
+    for (const middleware of middlewares) {
       const output = await middleware(this, this.response);
 
       if (output !== undefined) {
@@ -161,7 +166,67 @@ export class Request {
     }
 
     // trigger the executedMiddleware event
-    this.trigger("executedMiddleware", this.route.middleware, this.route);
+    this.trigger("executedMiddleware", middlewares, this.route);
+  }
+
+  /**
+   * Collect middlewares for current route
+   */
+  protected collectMiddlewares(): Middleware[] {
+    // we'll collect middlewares from 4 places
+    // We'll collect from http configurations under `http.middleware` config
+    // it has 3 middlewares types, `all` `only` and `except`
+    // and the final one will be the middlewares in the route itself
+    // so the order of collecting and executing will be: `all` `only` `except` and `route`
+    const middlewaresList: Middleware[] = [];
+
+    // 1- collect all middlewares as they will be executed first
+    const allMiddlewaresConfigurations = config.get("http.middleware.only");
+
+    // check if it has middleware list
+    if (allMiddlewaresConfigurations?.middleware) {
+      // now just push everything there
+      middlewaresList.push(...allMiddlewaresConfigurations.middleware);
+    }
+
+    // 2- check if there is `only` property
+    const onlyMiddlewaresConfigurations = config.get("http.middleware.only");
+
+    if (onlyMiddlewaresConfigurations?.middleware) {
+      // check if current route exists in the `routes` property
+      // or the route has a name and exists in `namedRoutes` property
+      if (
+        onlyMiddlewaresConfigurations.routes?.includes(this.route.path) ||
+        (this.route.name &&
+          onlyMiddlewaresConfigurations.namedRoutes?.includes(this.route.name))
+      ) {
+        middlewaresList.push(...onlyMiddlewaresConfigurations.middleware);
+      }
+    }
+
+    // 3- collect routes from except middlewares
+    const exceptMiddlewaresConfigurations = config.get(
+      "http.middleware.except",
+    );
+
+    if (exceptMiddlewaresConfigurations?.middleware) {
+      // first check if there is `routes` property and route path is not listed there
+      // then check if route has name and that name is not listed in `namedRoutes` property
+      if (
+        !exceptMiddlewaresConfigurations.routes?.includes(this.route.path) &&
+        this.route.name &&
+        !exceptMiddlewaresConfigurations.namedRoutes?.includes(this.route.name)
+      ) {
+        middlewaresList.push(...exceptMiddlewaresConfigurations.middleware);
+      }
+    }
+
+    // 4- collect routes from route middlewares
+    if (this.route.middleware) {
+      middlewaresList.push(...this.route.middleware);
+    }
+
+    return middlewaresList;
   }
 
   /**
