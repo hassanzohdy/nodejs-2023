@@ -1,4 +1,4 @@
-import request from "core/http/request";
+import { request } from "core/http";
 import { Route, RouteHandler, RouteOptions } from "./types";
 
 export class Router {

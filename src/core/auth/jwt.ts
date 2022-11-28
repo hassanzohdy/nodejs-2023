@@ -1,5 +1,4 @@
-import request from "core/http/request";
-import { getServer } from "core/http/server";
+import { getServer, request } from "core/http";
 
 const jwt = {
   /**

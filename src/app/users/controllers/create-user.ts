@@ -1,4 +1,4 @@
-import { Request } from "core/http/request";
+import { Request } from "core/http";
 
 export default async function createUser(request: Request) {
   const { name, email } = request.body;

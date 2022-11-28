@@ -1,9 +1,9 @@
-import config from "@mongez/config";
 import events from "@mongez/events";
 import { get, only } from "@mongez/reinforcements";
 import { Middleware, Route } from "core/router/types";
 import { validateAll } from "core/validator";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { httpConfig } from "./config";
 import response, { Response } from "./response";
 import { RequestEvent } from "./types";
 import UploadedFile from "./UploadedFile";
@@ -181,7 +181,7 @@ export class Request {
     const middlewaresList: Middleware[] = [];
 
     // 1- collect all middlewares as they will be executed first
-    const allMiddlewaresConfigurations = config.get("http.middleware.only");
+    const allMiddlewaresConfigurations = httpConfig("middleware.all");
 
     // check if it has middleware list
     if (allMiddlewaresConfigurations?.middleware) {
@@ -190,7 +190,7 @@ export class Request {
     }
 
     // 2- check if there is `only` property
-    const onlyMiddlewaresConfigurations = config.get("http.middleware.only");
+    const onlyMiddlewaresConfigurations = httpConfig("middleware.only");
 
     if (onlyMiddlewaresConfigurations?.middleware) {
       // check if current route exists in the `routes` property
@@ -205,9 +205,7 @@ export class Request {
     }
 
     // 3- collect routes from except middlewares
-    const exceptMiddlewaresConfigurations = config.get(
-      "http.middleware.except",
-    );
+    const exceptMiddlewaresConfigurations = httpConfig("middleware.except");
 
     if (exceptMiddlewaresConfigurations?.middleware) {
       // first check if there is `routes` property and route path is not listed there

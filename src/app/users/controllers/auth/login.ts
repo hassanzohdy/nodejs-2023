@@ -1,6 +1,5 @@
 import User from "app/users/models/user";
-import { Request } from "core/http/request";
-import { Response } from "core/http/response";
+import { Request, Response } from "core/http";
 
 export default async function login(request: Request, response: Response) {
   // get the email and password from the request body

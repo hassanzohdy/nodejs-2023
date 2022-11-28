@@ -1,6 +1,5 @@
 import config from "@mongez/config";
-import { Request } from "core/http/request";
-import { Response } from "core/http/response";
+import { Request, Response } from "core/http";
 import { setCurrentUser } from "./current-user";
 import jwt from "./jwt";
 

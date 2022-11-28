@@ -1,3 +1,4 @@
+import { Middleware } from "core/router/types";
 import { Response } from "./response";
 
 export type RequestEvent =
@@ -83,3 +84,55 @@ export type ResponseEvent =
    * Triggered after sending the response if the response status code is 4xx or 5xx
    */
   | "error";
+
+/**
+ * Partial Middleware
+ */
+export interface PartialMiddleware {
+  /**
+   * Routes list
+   * @example routes: ["/users", "/posts"]
+   */
+  routes?: string[];
+  /**
+   * Named routes list
+   *
+   * @example namedRoutes: ["users.list", "posts.list"]
+   */
+  namedRoutes?: string[];
+  /**
+   * Middlewares list
+   */
+  middleware: Middleware[];
+}
+
+/**
+ * Http Configurations list
+ */
+export interface HttpConfigurations {
+  /**
+   * Server port
+   */
+  port?: number;
+  /**
+   * Host
+   */
+  host?: string;
+  /**
+   * Http middlewares list
+   */
+  middleware?: {
+    /**
+     * All middlewares that are passed to `all` array will be applied to all routes
+     */
+    all?: Middleware[];
+    /**
+     * Middlewares that are passed to `only` object will be applied to specific routes
+     */
+    only?: PartialMiddleware;
+    /**
+     * Middlewares that are passed to `except` object will be excluded from specific routes
+     */
+    except?: PartialMiddleware;
+  };
+}

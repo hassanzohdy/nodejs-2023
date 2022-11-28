@@ -1,6 +1,4 @@
-import { Request } from "core/http/request";
-import { Response } from "core/http/response";
-import { ReturnedResponse } from "core/http/types";
+import { Request, Response, ReturnedResponse } from "core/http";
 
 /**
  * Middleware method

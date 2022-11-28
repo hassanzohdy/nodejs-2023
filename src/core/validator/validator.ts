@@ -1,5 +1,5 @@
 import events from "@mongez/events";
-import { Request } from "core/http/request";
+import { Request } from "core/http";
 import RulesList from "./rules-list";
 import { ValidationEvent } from "./types";
 

@@ -1,5 +1,5 @@
 import database from "core/database";
-import { Request } from "core/http/request";
+import { Request } from "core/http";
 
 export default async function usersList(request: Request) {
   const usersCollection = database.collection("users");

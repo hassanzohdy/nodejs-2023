@@ -1,4 +1,4 @@
-import { Request } from "core/http/request";
+import { Request } from "core/http";
 
 export default function getUser(request: Request) {
   return {
