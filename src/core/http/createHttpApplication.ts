@@ -1,4 +1,5 @@
 import router from "core/router";
+import { setBaseUrl } from "core/utils/urls";
 import { httpConfig } from "./config";
 import registerHttpPlugins from "./plugins";
 import response from "./response";
@@ -16,12 +17,15 @@ export default async function createHttpApplication() {
 
   try {
     // 👇🏻 We can use the url of the server
-    const address = await server.listen({
+    const baseUrl = await server.listen({
       port: httpConfig("port"),
       host: httpConfig("host"),
     });
 
-    console.log(`Start browsing using ${address}`);
+    // update base url
+    setBaseUrl(baseUrl);
+
+    console.log(`Start browsing using ${baseUrl}`);
   } catch (err) {
     console.log(err);
 
