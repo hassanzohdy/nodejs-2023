@@ -1,11 +1,15 @@
 import { get, set, unset } from "@mongez/reinforcements";
+import { GenericObject } from "@mongez/reinforcements/cjs/types";
 import Is from "@mongez/supportive-is";
 import { Model } from "core/database";
 import { assetsUrl, uploadsUrl, url } from "core/utils/urls";
 
 const missingKey = Symbol("missing");
 
-export type ResourceValue =
+/**
+ * Built in casts
+ */
+export type OutputCastType =
   | "string"
   | "number"
   | "boolean"
@@ -18,16 +22,24 @@ export type ResourceValue =
   | "publicUrl"
   | "assetsUrl";
 
+/**
+ * Resource output
+ */
 export type ResourceOutput = Record<
   string,
-  ResourceValue | typeof Resource | ((value: any) => any)
+  OutputCastType | typeof Resource | ((value: any) => Promise<any> | any)
 >;
+
+/**
+ * Allowed resource data
+ */
+export type ResourceData = GenericObject | typeof Model | typeof Resource;
 
 export default class Resource {
   /**
    * Final data output
    */
-  protected data: Record<string, any> = {};
+  protected data: GenericObject = {};
 
   /**
    * Disabled keys from being returned in the final output
@@ -52,7 +64,7 @@ export default class Resource {
   /**
    * Constructor
    */
-  public constructor(protected resource: any = {}) {
+  public constructor(protected resource: ResourceData = {}) {
     //
     if (this.resource instanceof Model) {
       this.resource = this.resource.data;
@@ -64,7 +76,7 @@ export default class Resource {
   /**
    * return list of resources for the given array ouf data
    */
-  public static collect(data: any[]) {
+  public static collect(data: ResourceData[]) {
     return data.map(item => {
       return new this(item);
     });
@@ -216,7 +228,9 @@ export default class Resource {
     if (typeof valueType === "string") {
       value = this.cast(value, valueType);
     } else if (valueType.prototype instanceof Resource) {
+      // if value is not a valid resource value then return null
       if (!this.isValidResourceValue(value)) return null;
+
       value = new valueType(value);
     } else if (typeof valueType === "function") {
       value = await valueType.call(this, value);
