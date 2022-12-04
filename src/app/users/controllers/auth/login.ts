@@ -13,7 +13,7 @@ export default async function login(request: Request, response: Response) {
     });
   }
 
-  const token = user.generateAccessToken();
+  const token = await user.generateAccessToken();
 
   return response.success({
     user: user.data,

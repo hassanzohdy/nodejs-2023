@@ -1,7 +1,12 @@
-import { Request } from "core/http";
+import UserResource from "../resources/user-resource";
 
-export default function getUser(request: Request) {
+export default function getUser() {
   return {
-    id: request.params.id,
+    user: new UserResource({
+      id: 12,
+      name: "Hasan",
+      email: "hassanzohdy@gmail.com",
+      age: 33,
+    }),
   };
 }

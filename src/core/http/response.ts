@@ -1,4 +1,5 @@
 import events, { EventSubscription } from "@mongez/events";
+import Is from "@mongez/supportive-is";
 import { Route } from "core/router/types";
 import { FastifyReply } from "fastify";
 import fs from "fs";
@@ -98,10 +99,58 @@ export class Response {
   }
 
   /**
+   * Parse body
+   */
+  protected async parseBody() {
+    return await this.parse(this.currentBody);
+  }
+
+  /**
+   * Parse the given value
+   */
+  protected async parse(value: any): Promise<any> {
+    // if it is a falsy value, return it
+    if (!value) return value;
+
+    // if it has a `toJSON` method, call it and await the result then return it
+    if (value.toJSON) {
+      return await value.toJSON();
+    }
+
+    // if it is iterable, an array or array-like object then parse each item
+    if (Is.iterable(value)) {
+      return await Promise.all(
+        Array.from(value).map((item: any) => {
+          return this.parse(item);
+        }),
+      );
+    }
+
+    // if not plain object, then return it
+    if (!Is.plainObject(value)) {
+      return value;
+    }
+
+    // loop over the object and check if the value and call `parse` on it
+    for (const key in value) {
+      const subValue = value[key];
+
+      value[key] = await this.parse(subValue);
+    }
+
+    return value;
+  }
+
+  /**
    * Send the response
    */
-  public send(data: any, statusCode?: number) {
-    this.currentBody = data;
+  public async send(data?: any, statusCode?: number) {
+    if (data) {
+      this.currentBody = data;
+    }
+
+    // parse the body and make sure it is transformed to sync data instead of async data
+    data = await this.parseBody();
 
     if (statusCode) {
       this.currentStatusCode = statusCode;

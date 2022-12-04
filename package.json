@@ -4,20 +4,20 @@
   "private": true,
   "dependencies": {
     "@fastify/cors": "^8.2.0",
-    "@fastify/jwt": "^6.3.3",
+    "@fastify/jwt": "^6.5.0",
     "@fastify/multipart": "^7.3.0",
-    "@fastify/rate-limit": "^7.5.0",
-    "@mongez/config": "^1.0.24",
+    "@fastify/rate-limit": "^7.6.0",
+    "@mongez/config": "^1.0.25",
     "@mongez/dotenv": "^1.0.3",
     "@mongez/events": "^1.0.9",
     "@mongez/fs": "^1.1.6",
     "@mongez/node": "^1.0.1",
-    "@mongez/password": "^1.0.1",
+    "@mongez/password": "^1.0.2",
     "@mongez/reinforcements": "^2.2.3",
     "@mongez/supportive-is": "^1.0.9",
     "chalk": "4",
-    "fastify": "^4.9.2",
-    "mongodb": "^4.11.0"
+    "fastify": "^4.10.2",
+    "mongodb": "^4.12.1"
   },
   "scripts": {
     "start": "nodemon src/index.ts --app",
@@ -27,19 +27,19 @@
     "format": "npx prettier --write ./**/*.{js,jsx,ts,tsx,css,md,json} --config ./.prettierrc.json"
   },
   "devDependencies": {
-    "@types/node": "^18.11.9",
-    "@typescript-eslint/eslint-plugin": "^5.42.1",
-    "@typescript-eslint/parser": "^5.42.1",
-    "eslint": "^8.27.0",
+    "@types/node": "^18.11.10",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-unused-imports": "^2.0.0",
     "nodemon": "^2.0.20",
-    "npm-check-updates": "^16.3.22",
-    "prettier": "^2.7.1",
-    "prettier-plugin-organize-imports": "^3.2.0",
+    "npm-check-updates": "^16.4.3",
+    "prettier": "^2.8.0",
+    "prettier-plugin-organize-imports": "^3.2.1",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.1.0",
-    "typescript": "^4.8.4"
+    "tsconfig-paths": "^4.1.1",
+    "typescript": "^4.9.3"
   }
 }

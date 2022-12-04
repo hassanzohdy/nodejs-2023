@@ -1,12 +1,18 @@
 import Auth from "core/auth/models/auth";
 import castPassword from "core/database/casts/cast-password";
 import { Casts, Document } from "core/database/model/types";
+import UserResource from "../resources/user-resource";
 
 export default class User extends Auth {
   /**
    * Collection name
    */
   public static collectionName = "users";
+
+  /**
+   * Resource
+   */
+  public static resource = UserResource;
 
   /**
    * Get user type

@@ -117,7 +117,8 @@ export class Request {
     const middlewareOutput = await this.executeMiddleware();
 
     if (middlewareOutput !== undefined) {
-      return middlewareOutput;
+      // 👇🏻 send the response
+      return this.response.send(middlewareOutput);
     }
 
     const handler = this.route.handler;
@@ -130,7 +131,8 @@ export class Request {
     );
 
     if (validationOutput !== undefined) {
-      return validationOutput;
+      // 👇🏻 send the response
+      return this.response.send(validationOutput);
     }
 
     // call executingAction event
@@ -140,7 +142,8 @@ export class Request {
     // call executedAction event
     this.trigger("executedAction", this.route);
 
-    return output;
+    // 👇🏻 send the response
+    await this.response.send(output);
   }
 
   /**

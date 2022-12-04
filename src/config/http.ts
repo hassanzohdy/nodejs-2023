@@ -1,5 +1,4 @@
 import { env } from "@mongez/dotenv";
-import { authMiddleware } from "core/auth/auth-middleware";
 import { HttpConfigurations } from "core/http";
 
 const httpConfigurations: HttpConfigurations = {
@@ -10,9 +9,12 @@ const httpConfigurations: HttpConfigurations = {
     all: [],
     // apply the middleware to specific routes
     only: {
+      // routes: [],
+      // namedRoutes: ["users.list"],
+      // middleware: [authMiddleware("user")],
       routes: [],
-      namedRoutes: ["users.list"],
-      middleware: [authMiddleware("guest")],
+      namedRoutes: [],
+      middleware: [],
     },
     // exclude the middleware from specific routes
     except: {

@@ -1,3 +1,4 @@
+import Resource from "core/resources/resource";
 import { Collection } from "mongodb";
 import connection, { Connection } from "../connection";
 import { Database } from "../database";
@@ -14,6 +15,11 @@ export default abstract class BaseModel {
    * Connection instance
    */
   public static connection: Connection = connection;
+
+  /**
+   * Model associated resource
+   */
+  public static resource?: typeof Resource;
 
   /**
    * Define the initial value of the id
@@ -95,5 +101,22 @@ export default abstract class BaseModel {
    */
   protected getStaticProperty(property: keyof typeof Model) {
     return (this.constructor as any)[property];
+  }
+
+  /**
+   * Prepare model for response
+   */
+  public async toJSON() {
+    // get static resource class
+    const resource = this.getStaticProperty("resource");
+
+    // if the model has a resource class
+    if (resource) {
+      // then return the resource instance and call `toJSON` method
+      return await new resource(this).toJSON();
+    }
+
+    // otherwise return the data object
+    return (this as any).data;
   }
 }

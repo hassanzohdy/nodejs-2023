@@ -27,3 +27,10 @@ export function uploadsUrl(path = "") {
 export function publicUrl(path = "") {
   return url("/public/" + path);
 }
+
+/**
+ * Assets url
+ */
+export function assetsUrl(path = "") {
+  return publicUrl("/assets/" + path);
+}
