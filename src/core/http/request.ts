@@ -117,6 +117,8 @@ export class Request {
     const middlewareOutput = await this.executeMiddleware();
 
     if (middlewareOutput !== undefined) {
+      // 👇🏻 make sure first its not a response instance
+      if (middlewareOutput instanceof Response) return;
       // 👇🏻 send the response
       return this.response.send(middlewareOutput);
     }
@@ -131,6 +133,8 @@ export class Request {
     );
 
     if (validationOutput !== undefined) {
+      // 👇🏻 make sure first its not a response instance
+      if (validationOutput instanceof Response) return;
       // 👇🏻 send the response
       return this.response.send(validationOutput);
     }
@@ -138,6 +142,9 @@ export class Request {
     // call executingAction event
     this.trigger("executingAction", this.route);
     const output = await handler(this, this.response);
+
+    // 👇🏻 make sure first its not a response instance
+    if (output instanceof Response) return;
 
     // call executedAction event
     this.trigger("executedAction", this.route);

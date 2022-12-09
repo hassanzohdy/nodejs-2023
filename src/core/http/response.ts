@@ -110,7 +110,7 @@ export class Response {
    */
   protected async parse(value: any): Promise<any> {
     // if it is a falsy value, return it
-    if (!value) return value;
+    if (!value || Is.scalar(value)) return value;
 
     // if it has a `toJSON` method, call it and await the result then return it
     if (value.toJSON) {
@@ -119,9 +119,11 @@ export class Response {
 
     // if it is iterable, an array or array-like object then parse each item
     if (Is.iterable(value)) {
-      return await Promise.all(
-        Array.from(value).map((item: any) => {
-          return this.parse(item);
+      const values = Array.from(value);
+
+      return Promise.all(
+        values.map(async (item: any) => {
+          return await this.parse(item);
         }),
       );
     }
@@ -145,6 +147,8 @@ export class Response {
    * Send the response
    */
   public async send(data?: any, statusCode?: number) {
+    if (data === this) return this;
+
     if (data) {
       this.currentBody = data;
     }
@@ -315,7 +319,11 @@ export class Response {
   /**
    * Send a not found response with status code 404
    */
-  public notFound(data: any) {
+  public notFound(
+    data: any = {
+      error: "notFound",
+    },
+  ) {
     return this.send(data, 404);
   }
 

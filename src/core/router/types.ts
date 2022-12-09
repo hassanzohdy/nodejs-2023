@@ -8,7 +8,18 @@ import { Request, Response, ReturnedResponse } from "core/http";
 export type Middleware = (
   request: Request,
   response: Response,
-) => ReturnedResponse | undefined;
+) => ReturnedResponse | undefined | void;
+
+export type RouteHandlerValidation = {
+  /**
+   * Validation rules
+   */
+  rules?: Record<string, any>;
+  /**
+   * Validation custom message
+   */
+  validate?: Middleware;
+};
 
 /**
  * Route handler receives a request and a response
@@ -23,16 +34,7 @@ export type RouteHandler = {
   /**
    * Validation static object property which can be optional
    */
-  validation?: {
-    /**
-     * Validation rules
-     */
-    rules?: Record<string, any>;
-    /**
-     * Validation custom message
-     */
-    validate?: Middleware;
-  };
+  validation?: RouteHandlerValidation;
 };
 
 export type RouteOptions = {
@@ -63,4 +65,53 @@ export type Route = RouteOptions & {
    * And als can have a `validation` object as a static property of the handler
    */
   handler: RouteHandler;
+};
+
+/** Route resource */
+export type RouteResource = {
+  /**
+   * list route
+   */
+  list?: RouteHandler;
+  /**
+   * Single resource route
+   */
+  get?: RouteHandler;
+  /**
+   * Create resource route
+   */
+  create?: RouteHandler;
+  /**
+   * Update resource route
+   */
+  update?: RouteHandler;
+  /**
+   * Patch resource route
+   */
+  patch?: RouteHandler;
+  /**
+   * Delete resource route
+   */
+  delete?: RouteHandler;
+  /**
+   * Validation object
+   */
+  validation?: {
+    /**
+     * Apply validation on create|update|patch combined
+     */
+    all?: RouteHandlerValidation;
+    /**
+     * Create validation object
+     */
+    create?: RouteHandlerValidation;
+    /**
+     * Update validation object
+     */
+    update?: RouteHandlerValidation;
+    /**
+     * Patch validation object
+     */
+    patch?: RouteHandlerValidation;
+  };
 };

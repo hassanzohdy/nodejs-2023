@@ -11,7 +11,9 @@ export default async function validateAll(
   request: Request,
   response: Response,
 ) {
-  if (validation?.rules) {
+  if (!validation) return;
+
+  if (validation.rules) {
     const validator = new Validator(request, validation.rules);
 
     try {
@@ -37,7 +39,7 @@ export default async function validateAll(
     }
   }
 
-  if (validation?.validate) {
+  if (validation.validate) {
     Validator.trigger("customValidating", validation.validate);
     const result = await validation.validate(request, response);
 

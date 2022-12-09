@@ -1,5 +1,13 @@
-import { request } from "core/http";
-import { Route, RouteHandler, RouteOptions } from "./types";
+import { ltrim, merge, toCamelCase } from "@mongez/reinforcements";
+import Is from "@mongez/supportive-is";
+import { Request, request, Response } from "core/http";
+import {
+  Route,
+  RouteHandler,
+  RouteHandlerValidation,
+  RouteOptions,
+  RouteResource,
+} from "./types";
 
 export class Router {
   /**
@@ -103,6 +111,146 @@ export class Router {
     });
 
     return this;
+  }
+
+  /**
+   * Add full restful resource routes
+   * This method will generate the following routes:
+   * 1. GET /path: list all resources
+   * 2. GET /path/:id: get a single resource
+   * 3. POST /path: create a new resource
+   * 4. PUT /path/:id: update a resource
+   * 5. DELETE /path/:id: delete a resource
+   * 6. PATCH /path/:id: update a resource partially
+   */
+  public resource(
+    path: string,
+    resource: RouteResource,
+    options: RouteOptions = {},
+  ) {
+    // get base resource name
+    const baseResourceName = options.name || toCamelCase(ltrim(path, "/"));
+
+    if (resource.list) {
+      const resourceName = baseResourceName + ".list";
+      this.get(path, resource.list.bind(resource), {
+        ...options,
+        name: resourceName,
+      });
+    }
+
+    if (resource.get) {
+      const resourceName = baseResourceName + ".get";
+
+      this.get(path + "/:id", resource.get.bind(resource), {
+        ...options,
+        name: resourceName,
+      });
+    }
+
+    if (resource.create) {
+      const resourceName = baseResourceName + ".create";
+
+      this.manageValidation(resource, "create");
+
+      this.post(path, resource.create.bind(resource), {
+        ...options,
+        name: resourceName,
+      });
+    }
+
+    if (resource.update) {
+      const resourceName = baseResourceName + ".update";
+
+      this.manageValidation(resource, "update");
+
+      this.put(path + "/:id", resource.update.bind(resource), {
+        ...options,
+        name: resourceName,
+      });
+    }
+
+    if (resource.patch) {
+      const resourceName = baseResourceName + ".patch";
+
+      this.manageValidation(resource, "patch");
+
+      this.patch(path + "/:id", resource.patch.bind(resource), {
+        ...options,
+        name: resourceName,
+      });
+    }
+
+    if (resource.delete) {
+      const resourceName = baseResourceName + ".delete";
+
+      this.delete(path + "/:id", resource.delete.bind(resource), {
+        ...options,
+        name: resourceName,
+      });
+    }
+
+    return this;
+  }
+
+  /**
+   * Manage validation system for the given resource
+   */
+  private manageValidation(
+    resource: RouteResource,
+    method: "create" | "update" | "patch",
+  ) {
+    const handler = resource[method]?.bind(resource);
+
+    if (!handler) return;
+
+    const methodValidation = resource?.validation?.[method];
+
+    if (!resource.validation || !methodValidation) return;
+
+    if (resource.validation.all) {
+      const validationMethods = {
+        all: resource?.validation?.all?.validate,
+        [method]: methodValidation.validate,
+      };
+
+      const validation: RouteHandlerValidation = {};
+
+      if (resource.validation.all.rules || methodValidation.rules) {
+        validation.rules = merge(
+          resource.validation.all.rules,
+          methodValidation.rules,
+        );
+      }
+
+      if (validationMethods.all || validationMethods[method]) {
+        validation.validate = async (request: Request, response: Response) => {
+          if (validationMethods.all) {
+            const output = await validationMethods.all(request, response);
+
+            if (output) return output;
+          }
+
+          if (validationMethods[method]) {
+            return await validationMethods[method]?.(request, response);
+          }
+
+          return undefined;
+        };
+      }
+
+      if (!Is.empty(validation)) {
+        handler.validation = validation;
+      }
+    } else {
+      handler.validation = resource.validation[method];
+    }
+
+    if (handler.validation?.validate) {
+      handler.validation.validate = handler.validation.validate.bind(resource);
+    }
+
+    resource[method] = handler;
   }
 
   /**

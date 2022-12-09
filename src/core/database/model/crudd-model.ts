@@ -165,8 +165,8 @@ export default abstract class CrudModel extends BaseModel {
   public static async paginate<T>(
     this: ChildModel<T>,
     filter: Filter,
-    page: number,
-    limit: number,
+    page = 1,
+    limit = 15,
   ): Promise<PaginationListing<T>> {
     filter = this.prepareFilters(filter);
 

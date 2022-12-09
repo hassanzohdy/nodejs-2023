@@ -19,10 +19,7 @@ export default class UserResource extends Resource {
   /**
    * Defaults when key is missing from resource
    */
-  protected defaults = {
-    name: "John Doe",
-    image: "users/my-image.jpg",
-  };
+  protected defaults = {};
 
   /**
    * {@inheritDoc}

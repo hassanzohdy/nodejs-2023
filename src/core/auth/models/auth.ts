@@ -55,7 +55,7 @@ export default abstract class Auth extends Model {
 
     // now verify the password
 
-    if (!verify((user as Model).get("password"), data.password)) {
+    if (!verify((user as any).get("password"), data.password)) {
       return null;
     }
 
