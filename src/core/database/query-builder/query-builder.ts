@@ -114,7 +114,10 @@ export class QueryBuilder {
   /**
    * Delete multiple documents from the given collection
    */
-  public async delete(collectionName: string, filter: Filter): Promise<number> {
+  public async delete(
+    collectionName: string,
+    filter: Filter = {},
+  ): Promise<number> {
     const query = this.query(collectionName);
 
     const result = await query.deleteMany(filter);

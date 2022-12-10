@@ -3,7 +3,7 @@ import { except } from "@mongez/reinforcements";
 import { Model } from "core/database";
 import { ChildModel } from "core/database/model/types";
 import jwt from "../jwt";
-import AccessToken from "./access-token";
+import AccessToken from "./access-token/access-token";
 
 export default abstract class Auth extends Model {
   /**

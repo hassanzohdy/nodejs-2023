@@ -82,8 +82,10 @@ export type CastType =
   | "object"
   | "array"
   | "date"
+  | "location"
   | "boolean"
-  | CustomCastType;
+  | CustomCastType
+  | Model;
 
 export type Casts = {
   [column: string]: CastType;

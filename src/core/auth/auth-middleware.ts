@@ -2,12 +2,24 @@ import config from "@mongez/config";
 import { Request, Response } from "core/http";
 import { setCurrentUser } from "./current-user";
 import jwt from "./jwt";
+import { AccessToken } from "./models/access-token";
 
 export function authMiddleware(allowedUserType?: string) {
   return async function auth(request: Request, response: Response) {
     try {
       // use our own jwt verify to verify the token
       await jwt.verify();
+
+      const accessToken = await AccessToken.first({
+        token: request.authorizationValue(),
+      });
+
+      if (!accessToken) {
+        return response.unauthorized({
+          error: "Unauthorized: Invalid Access Token",
+        });
+      }
+
       // get current user
       const user: any = request.baseRequest.user;
 

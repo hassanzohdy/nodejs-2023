@@ -21,6 +21,7 @@
   },
   "scripts": {
     "start": "nodemon src/index.ts --app",
+    "migrate": "nodemon ./src/migrations.ts",
     "update": "npx ncu -u",
     "lint": "npx eslint -c ./.eslintrc.json ./src",
     "fix": "npx eslint --fix -c ./.eslintrc.json ./src",

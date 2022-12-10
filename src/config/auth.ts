@@ -1,4 +1,4 @@
-import User from "app/users/models/user";
+import User from "app/users/models/user/user";
 import Guest from "core/auth/models/guest";
 
 const authConfigurations = {

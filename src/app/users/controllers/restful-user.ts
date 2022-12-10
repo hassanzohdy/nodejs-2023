@@ -1,7 +1,7 @@
 import { Request, Response } from "core/http";
 import Restful from "core/router/restful";
 import { RouteResource } from "core/router/types";
-import User from "../models/user";
+import User from "../models/user/user";
 
 class RestfulUser extends Restful<User> implements RouteResource {
   /**

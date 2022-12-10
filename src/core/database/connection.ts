@@ -18,6 +18,11 @@ export class Connection {
   public database!: Database;
 
   /**
+   * A flag to check if the connection is established
+   */
+  protected isConnectionEstablished = false;
+
+  /**
    * Connect to the database
    */
   public async connect() {
@@ -35,7 +40,7 @@ export class Connection {
 
       this.database = database.setDatabase(mongoDBDatabase);
 
-      this.trigger("connected", this);
+      this.isConnectionEstablished = true;
 
       // listen on connection close
       this.client.on("close", () => {
@@ -48,9 +53,18 @@ export class Connection {
           ? chalk.red("Your not making a secure authenticated connection!")
           : "",
       );
+
+      this.trigger("connected", this);
     } catch (error) {
       this.trigger("error", error);
     }
+  }
+
+  /**
+   * Check if the connection is established
+   */
+  public isConnected() {
+    return this.isConnectionEstablished;
   }
 
   /**

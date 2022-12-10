@@ -1,3 +1,4 @@
+import User from "app/users/models/user/user";
 import { ChildModel, Model } from "core/database";
 import { Request, Response } from "core/http";
 import { RouteResource } from "core/router/types";
@@ -12,11 +13,18 @@ export default class Restful<T extends Model> implements RouteResource {
    * List records
    */
   public async list(request: Request, response: Response) {
-    const filter = request.all();
-    const records = await this.model?.list(filter);
+    // const filter = request.all();
+    // const records = await this.model?.list(filter);
+    const query = User.aggregate();
+
+    query
+      .limit(2)
+      .where("id", ">=", 100)
+      .sort("id", "asc")
+      .with("accessTokens");
 
     return response.success({
-      records,
+      records: await query.get(),
     });
   }
 

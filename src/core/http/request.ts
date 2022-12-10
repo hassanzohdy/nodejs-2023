@@ -41,6 +41,28 @@ export class Request {
   }
 
   /**
+   * Get value of the given header
+   */
+  public header(name: string, defaultValue: any = null) {
+    return this.baseRequest.headers[name] ?? defaultValue;
+  }
+
+  /**
+   * Get authorization header value
+   */
+  public authorizationValue() {
+    const authorization = this.header("authorization");
+
+    if (!authorization) return null;
+
+    const [type, value] = authorization.split(" ");
+
+    if (!["bearer", "key"].includes(type.toLowerCase())) return null;
+
+    return value;
+  }
+
+  /**
    * Parse the payload and merge it from the request body, params and query string
    */
   protected parsePayload() {

@@ -1,4 +1,4 @@
-import User from "app/users/models/user";
+import User from "app/users/models/user/user";
 import { Request, Response } from "core/http";
 
 export default async function login(request: Request, response: Response) {

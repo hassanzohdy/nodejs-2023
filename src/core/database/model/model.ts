@@ -8,12 +8,18 @@ import {
 } from "@mongez/reinforcements";
 import Is from "@mongez/supportive-is";
 import queryBuilder from "../query-builder/query-builder";
-import CrudModel from "./crudd-model";
-import { Casts, CastType, Document, ModelDocument } from "./types";
+import RelationshipModel from "./relationships";
+import {
+  Casts,
+  CastType,
+  CustomCastType,
+  Document,
+  ModelDocument,
+} from "./types";
 
 const MISSING_KEY = Symbol("MISSING_KEY");
 
-export default abstract class Model extends CrudModel {
+export default abstract class Model extends RelationshipModel {
   /**
    * Model Initial Document data
    */
@@ -70,7 +76,7 @@ export default abstract class Model extends CrudModel {
   /**
    * Get value of the given column
    */
-  public get(column: string, defaultValue = null) {
+  public get(column: string, defaultValue: any = null) {
     return get(this.data, column, defaultValue);
   }
 
@@ -136,6 +142,8 @@ export default abstract class Model extends CrudModel {
   public async save(mergedData: Document = {}) {
     this.merge(mergedData);
 
+    let mode: "create" | "update" = "create";
+
     // check if the data contains the primary id column
     if (!this.isNewModel()) {
       // perform an update operation
@@ -143,11 +151,13 @@ export default abstract class Model extends CrudModel {
       // if not changed, then do not do anything
       if (areEqual(this.originalData, this.data)) return;
 
+      mode = "update";
+
       this.data.updatedAt = new Date();
 
       this.castData();
 
-      await queryBuilder.update(
+      await queryBuilder.replace(
         this.getCollectionName(),
         {
           _id: this.data._id,
@@ -187,7 +197,9 @@ export default abstract class Model extends CrudModel {
       );
     }
 
-    this.originalData = this.data;
+    this.originalData = { ...this.data };
+
+    this.startSyncing(mode);
   }
 
   /**
@@ -203,10 +215,23 @@ export default abstract class Model extends CrudModel {
 
       const castType = this.casts[column];
 
-      if (typeof castType === "function") {
-        value = castType(column, value, this);
+      const castValue = (value: any) => {
+        // if cast type is passed as model class, then create a new instance of it
+        if (value instanceof Model) {
+          value = value.data;
+        } else if (typeof castType === "function") {
+          value = (castType as CustomCastType)(column, value, this);
+        } else {
+          value = this.castValue(value, castType);
+        }
+
+        return value;
+      };
+
+      if (Array.isArray(value)) {
+        value = value.map(item => castValue(item));
       } else {
-        value = this.castValue(value, castType);
+        value = castValue(value);
       }
 
       this.set(column, value);
@@ -255,6 +280,11 @@ export default abstract class Model extends CrudModel {
         }
 
         return new Date();
+      case "location":
+        return {
+          type: "Point",
+          coordinates: [Number(value[0]), Number(value[1])],
+        };
 
       case "object":
         if (!value) return {};
@@ -306,6 +336,8 @@ export default abstract class Model extends CrudModel {
     await queryBuilder.deleteOne(this.getCollectionName(), {
       _id: this.data._id,
     });
+
+    this.syncDestruction();
   }
 
   /**
