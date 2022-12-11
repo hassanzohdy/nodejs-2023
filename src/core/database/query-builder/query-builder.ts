@@ -190,6 +190,19 @@ export class QueryBuilder {
   }
 
   /**
+   * Get distinct values for the given collection with the given filter
+   */
+  public async distinct(
+    collectionName: string,
+    field: string,
+    filter: Filter = {},
+  ) {
+    const query = this.query(collectionName);
+
+    return await query.distinct(field, filter);
+  }
+
+  /**
    * Count documents for the given collection with the given filter
    */
   public async count(collectionName: string, filter: Filter = {}) {

@@ -44,23 +44,14 @@ export default class ModelAggregate<T> extends Aggregate {
       pipeline.push(select(selectColumns));
     }
 
-    this.lookup(
-      model.collectionName,
-      localField || `${as}.id`,
-      foreignField || "id",
+    this.lookup({
       as,
+      single,
+      from: model.collectionName,
+      localField: localField || `${as}.id`,
+      foreignField: foreignField || "id",
       pipeline,
-    );
-
-    if (single) {
-      this.addPipeline({
-        $addFields: {
-          [`${as}`]: {
-            $first: `$${as}`,
-          },
-        },
-      });
-    }
+    });
 
     return this;
   }

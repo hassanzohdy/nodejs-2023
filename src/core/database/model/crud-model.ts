@@ -279,6 +279,21 @@ export default abstract class CrudModel extends BaseModel {
   }
 
   /**
+   * Get distinct values for the given column
+   */
+  public static async distinct<T>(
+    this: ChildModel<T>,
+    column: string,
+    filter: Filter = {},
+  ): Promise<any[]> {
+    return await queryBuilder.distinct(
+      this.collectionName,
+      column,
+      this.prepareFilters(filter),
+    );
+  }
+
+  /**
    * Prepare filters
    */
   protected static prepareFilters(filters: Filter = {}) {

@@ -1,4 +1,5 @@
-import { GenericObject } from "@mongez/reinforcements/cjs/types";
+import Is from "@mongez/supportive-is";
+import { Filter } from "../model";
 
 export type WhereOperator =
   | "="
@@ -51,12 +52,7 @@ export type MongoDBOperator =
   | "$size"
   | "$bitsAllClear";
 
-export default class WhereQuery {
-  /**
-   * Operators pipeline for match
-   */
-  protected operatorsPipeline: GenericObject = {};
-
+export default class WhereExpression {
   /**
    * Operators list
    */
@@ -90,32 +86,18 @@ export default class WhereQuery {
   };
 
   /**
-   * Constructor
-   */
-  public constructor(protected readonly query: GenericObject) {
-    //
-  }
-
-  /**
    * Where query
    */
-  public where(column: string, value: any): this;
-  public where(column: string, operator: WhereOperator, value: any): this;
-  public where(...args: any[]) {
-    const expression = this.parseWhere(args);
+  public static parse(column: string, value: any): Filter;
+  public static parse(filter: Filter): Filter;
+  public static parse(
+    column: string,
+    operator: WhereOperator,
+    value: any,
+  ): Filter;
+  public static parse(...args: any[]) {
+    if (args.length === 1 && Is.plainObject(args[0])) return args[0];
 
-    this.operatorsPipeline = {
-      ...this.operatorsPipeline,
-      ...expression,
-    };
-
-    return this;
-  }
-
-  /**
-   * Parse the given args
-   */
-  protected parseWhere(args: any[]) {
     // eslint-disable-next-line prefer-const
     const column: string = args[0];
     let operator: WhereOperator = args[1];
@@ -138,7 +120,7 @@ export default class WhereQuery {
     }
 
     let expression = {
-      [WhereQuery.operators[operator as WhereOperator]]: value,
+      [WhereExpression.operators[operator as WhereOperator]]: value,
     };
 
     if (operator === "between") {
@@ -162,3 +144,5 @@ export default class WhereQuery {
     };
   }
 }
+
+export const where = WhereExpression.parse;

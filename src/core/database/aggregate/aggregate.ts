@@ -1,11 +1,11 @@
 import { get } from "@mongez/reinforcements";
 import { GenericObject } from "@mongez/reinforcements/cjs/types";
 import database from "../database";
-import { count, dayOfMonth, month, year } from "./columns";
+import { count, dayOfMonth, last, month, year } from "./columns";
 import DeselectPipeline from "./DeselectPipeline";
 import GroupByPipeline from "./GroupByPipeline";
 import LimitPipeline from "./LimitPipeline";
-import LookupPipeline from "./LookupPipeline";
+import LookupPipeline, { LookupPipelineOptions } from "./LookupPipeline";
 import OrWherePipeline from "./OrWherePipeline";
 import { parsePipelines } from "./parsePipelines";
 import Pipeline from "./pipeline";
@@ -14,8 +14,9 @@ import SkipPipeline from "./SkipPipeline";
 import SortByPipeline from "./SortByPipeline";
 import SortPipeline from "./SortPipeline";
 import UnwindPipeline from "./UnwindPipeline";
+import { where, WhereOperator } from "./WhereExpression";
 import WhereExpressionPipeline from "./WhereExpressionPipeline";
-import WherePipeline, { WhereOperator } from "./WherePipeline";
+import WherePipeline from "./WherePipeline";
 
 export default class Aggregate {
   /**
@@ -67,7 +68,7 @@ export default class Aggregate {
   public groupByYear(column: string, groupByData?: GenericObject) {
     return this.groupBy(
       {
-        ...year(column, "year"),
+        year: year(column),
       },
       groupByData,
     );
@@ -79,8 +80,8 @@ export default class Aggregate {
   public groupByMonthAndYear(column: string, groupByData?: GenericObject) {
     return this.groupBy(
       {
-        ...year(column, "year"),
-        ...month(column, "month"),
+        year: year(column),
+        month: month(column),
       },
       groupByData,
     );
@@ -92,7 +93,7 @@ export default class Aggregate {
   public groupByMonth(column: string, groupByData?: GenericObject) {
     return this.groupBy(
       {
-        ...month(column, "month"),
+        month: month(column),
       },
       groupByData,
     );
@@ -104,9 +105,9 @@ export default class Aggregate {
   public groupByDate(column: string, groupByData?: GenericObject) {
     return this.groupBy(
       {
-        ...year(column, "year"),
-        ...month(column, "month"),
-        ...dayOfMonth(column, "day"),
+        year: year(column),
+        month: month(column),
+        day: dayOfMonth(column),
       },
       groupByData,
     );
@@ -118,7 +119,7 @@ export default class Aggregate {
   public groupByDayOfMonth(column: string, groupByData?: GenericObject) {
     return this.groupBy(
       {
-        ...dayOfMonth(column, "day"),
+        day: dayOfMonth(column),
       },
       groupByData,
     );
@@ -180,7 +181,8 @@ export default class Aggregate {
   public where(column: string, operator: WhereOperator, value: any): this;
   public where(column: GenericObject): this;
   public where(...args: any[]) {
-    return this.pipeline(new WherePipeline(...args));
+    // eslint-disable-next-line prefer-spread
+    return this.pipeline(new WherePipeline(where.apply(null, args as any)));
   }
 
   /**
@@ -284,16 +286,17 @@ export default class Aggregate {
   /**
    * Lookup the given collection
    */
-  public lookup(
-    collection: string,
-    localField: string,
-    foreignField: string,
-    as: string,
-    pipeline?: (Pipeline | GenericObject)[],
-  ) {
-    return this.pipeline(
-      new LookupPipeline(collection, localField, foreignField, as, pipeline),
-    );
+  public lookup(options: LookupPipelineOptions) {
+    this.pipeline(new LookupPipeline(options));
+
+    if (options.single && options.as) {
+      const as = options.as;
+      this.addPipeline({
+        $addFields: {
+          [as]: last(as),
+        },
+      });
+    }
   }
 
   /**
@@ -354,7 +357,9 @@ export default class Aggregate {
    * Count the results
    */
   public async count(): Promise<number> {
-    this.groupBy(null, count("total"));
+    this.groupBy(null, {
+      total: count(),
+    });
 
     const results = await this.execute();
 
