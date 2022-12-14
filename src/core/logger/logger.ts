@@ -29,14 +29,9 @@ export class Logger {
   /**
    * Make log
    */
-  public async log(
-    module: string,
-    action: string,
-    message: any,
-    level: LogLevel,
-  ) {
+  public log(module: string, action: string, message: any, level: LogLevel) {
     for (const channel of this.channels) {
-      await channel.log(module, action, message, level);
+      channel.log(module, action, message, level);
     }
 
     return this;
@@ -45,35 +40,35 @@ export class Logger {
   /**
    * Make debug log
    */
-  public async debug(module: string, action: string, message: any = "") {
+  public debug(module: string, action: string, message: any = "") {
     return this.log(module, action, message, "debug");
   }
 
   /**
    * Make info log
    */
-  public async info(module: string, action: string, message: any = "") {
+  public info(module: string, action: string, message: any = "") {
     return this.log(module, action, message, "info");
   }
 
   /**
    * Make warn log
    */
-  public async warn(module: string, action: string, message: any = "") {
+  public warn(module: string, action: string, message: any = "") {
     return this.log(module, action, message, "warn");
   }
 
   /**
    * Make error log
    */
-  public async error(module: string, action: string, message: any = "") {
+  public error(module: string, action: string, message: any = "") {
     return this.log(module, action, message, "error");
   }
 
   /**
    * Make success log
    */
-  public async success(module: string, action: string, message: any = "") {
+  public success(module: string, action: string, message: any = "") {
     return this.log(module, action, message, "success");
   }
 }
