@@ -1,56 +1,6 @@
 import Is from "@mongez/supportive-is";
 import { Filter } from "../model";
-
-export type WhereOperator =
-  | "="
-  | "!="
-  | "not"
-  | ">"
-  | ">="
-  | "<"
-  | "<="
-  | "in"
-  | "nin"
-  | "notIn"
-  | "all"
-  | "exists"
-  | "type"
-  | "mod"
-  | "regex"
-  | "geoIntersects"
-  | "geoWithin"
-  | "near"
-  | "between"
-  | "notBetween"
-  | "nearSphere"
-  | "elemMatch"
-  | "size"
-  | "like"
-  | "notLike"
-  | "bitsAllClear";
-
-export type MongoDBOperator =
-  | "$eq"
-  | "$ne"
-  | "$gt"
-  | "$gte"
-  | "$lt"
-  | "$lte"
-  | "$in"
-  | "$nin"
-  | "$all"
-  | "$exists"
-  | "$type"
-  | "$mod"
-  | "$regex"
-  | "$geoIntersects"
-  | "$geoWithin"
-  | "$between"
-  | "$near"
-  | "$nearSphere"
-  | "$elemMatch"
-  | "$size"
-  | "$bitsAllClear";
+import { MongoDBOperator, WhereOperator } from "./types";
 
 export default class WhereExpression {
   /**
@@ -80,7 +30,6 @@ export default class WhereExpression {
     nearSphere: "$nearSphere",
     elemMatch: "$elemMatch",
     size: "$size",
-    bitsAllClear: "$bitsAllClear",
     like: "$regex",
     notLike: "$regex",
   };
@@ -139,8 +88,7 @@ export default class WhereExpression {
 
     // now add the data
     return {
-      column,
-      expression,
+      [column]: expression,
     };
   }
 }

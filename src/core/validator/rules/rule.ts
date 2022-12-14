@@ -10,20 +10,38 @@ export default abstract class Rule {
   protected isValid = true;
 
   /**
-   * Constructor
+   * Input name
    */
-  public constructor(
-    protected readonly input: string,
-    protected readonly value: any,
-  ) {
-    //
-  }
+  protected input = "";
+
+  /**
+   * Input value
+   */
+  protected value = "";
 
   /**
    * Validate the rule
    */
   public async validate() {
     //
+  }
+
+  /**
+   * Set input name
+   */
+  public setInput(input: string) {
+    this.input = input;
+
+    return this;
+  }
+
+  /**
+   * Set input value
+   */
+  public setValue(value: any) {
+    this.value = value;
+
+    return this;
   }
 
   /**
@@ -38,5 +56,9 @@ export default abstract class Rule {
    */
   public fails() {
     return this.isValid === false;
+  }
+
+  public error() {
+    return `${this.input} is not valid`;
   }
 }

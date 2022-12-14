@@ -1,7 +1,7 @@
 import { connectToDatabase } from "core/database";
 import { createHttpApplication } from "core/http";
 
-export default async function startApplication() {
+export default function startApplication() {
   connectToDatabase();
   createHttpApplication();
 }

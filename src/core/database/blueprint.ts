@@ -18,9 +18,7 @@ export default class BluePrint {
     }
 
     if (!options.name) {
-      options.name = `${this.model.collectionName}_${columns.join("_")}_${
-        options.unique ? "unique" : "index"
-      }`;
+      options.name = this.getIndexName(columns);
     }
 
     const columnsList = columns.reduce(
@@ -42,6 +40,14 @@ export default class BluePrint {
     options: CreateIndexesOptions = {},
   ) {
     options.unique = true;
+    if (!Array.isArray(column)) {
+      column = [column];
+    }
+
+    if (!options.name) {
+      options.name = this.getIndexName(column, "unique");
+    }
+
     return this.index(column, options);
   }
 
@@ -56,6 +62,10 @@ export default class BluePrint {
 
     if (!Array.isArray(column)) {
       column = [column];
+    }
+
+    if (!options.name) {
+      options.name = this.getIndexName(column, "text");
     }
 
     const columnsList = column.reduce((list: GenericObject, column: string) => {
@@ -79,6 +89,10 @@ export default class BluePrint {
       column = [column];
     }
 
+    if (!options.name) {
+      options.name = this.getIndexName(column, "geo");
+    }
+
     const columnsList = column.reduce((list: GenericObject, column: string) => {
       list[column] = "2dsphere";
       return list;
@@ -97,7 +111,32 @@ export default class BluePrint {
   /**
    * Drop index
    */
-  public static async dropIndex(name: string) {
+  public static async dropIndex(...columns: string[]) {
+    const name = this.getIndexName(columns);
+    return await this.collection().dropIndex(name);
+  }
+
+  /**
+   * Drop unique index
+   */
+  public static async dropUniqueIndex(...columns: string[]) {
+    const name = this.getIndexName(columns, "unique");
+    return await this.collection().dropIndex(name);
+  }
+
+  /**
+   * Drop text index
+   */
+  public static async dropTextIndex(...columns: string[]) {
+    const name = this.getIndexName(columns, "text");
+    return await this.collection().dropIndex(name);
+  }
+
+  /**
+   * Drop geo index
+   */
+  public static async dropGeoIndex(...columns: string[]) {
+    const name = this.getIndexName(columns, "geo");
     return await this.collection().dropIndex(name);
   }
 
@@ -113,6 +152,13 @@ export default class BluePrint {
    */
   public static async indexExists(name: string) {
     return await this.collection().indexExists(name);
+  }
+
+  /**
+   * Get index name
+   */
+  public static getIndexName(columns: string[], type = "index") {
+    return `${this.model.collectionName}_${columns.join("_")}_${type}`;
   }
 
   /**

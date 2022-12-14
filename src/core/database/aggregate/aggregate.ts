@@ -1,8 +1,11 @@
 import { get } from "@mongez/reinforcements";
 import { GenericObject } from "@mongez/reinforcements/cjs/types";
+import { ObjectID } from "bson";
 import database from "../database";
-import { count, dayOfMonth, last, month, year } from "./columns";
+import { PaginationListing } from "../model";
+import queryBuilder from "../query-builder/query-builder";
 import DeselectPipeline from "./DeselectPipeline";
+import { count, dayOfMonth, last, month, year } from "./expressions";
 import GroupByPipeline from "./GroupByPipeline";
 import LimitPipeline from "./LimitPipeline";
 import LookupPipeline, { LookupPipelineOptions } from "./LookupPipeline";
@@ -13,8 +16,10 @@ import SelectPipeline from "./SelectPipeline";
 import SkipPipeline from "./SkipPipeline";
 import SortByPipeline from "./SortByPipeline";
 import SortPipeline from "./SortPipeline";
+import SortRandomPipeline from "./SortRandomPipeline";
+import { WhereOperator } from "./types";
 import UnwindPipeline from "./UnwindPipeline";
-import { where, WhereOperator } from "./WhereExpression";
+import { where } from "./WhereExpression";
 import WhereExpressionPipeline from "./WhereExpressionPipeline";
 import WherePipeline from "./WherePipeline";
 
@@ -44,6 +49,45 @@ export default class Aggregate {
   }
 
   /**
+   * Order by descending
+   */
+  public orderByDesc(column: string) {
+    return this.sort(column, "desc");
+  }
+
+  /**
+   * Sort by multiple columns
+   */
+  public sortBy(columns: Record<string, "desc" | "asc">) {
+    return this.pipeline(new SortByPipeline(columns));
+  }
+
+  /**
+   * Sort randomly
+   */
+  public random(limit?: number) {
+    if (!limit) {
+      // get limit pipeline
+      const limitPipeline = this.pipelines.find(
+        pipeline => pipeline.name === "limit",
+      );
+
+      if (limitPipeline) {
+        limit = limitPipeline.getData();
+      }
+
+      if (!limit) {
+        throw new Error(
+          "You must provide a limit when using random() or use limit() pipeline",
+        );
+      }
+    }
+
+    // order by random in mongodb using $sample
+    return this.pipeline(new SortRandomPipeline(limit));
+  }
+
+  /**
    * Group by aggregate
    */
   public groupBy(GroupByPipeline: GroupByPipeline): this;
@@ -51,6 +95,7 @@ export default class Aggregate {
     GroupByPipeline: GenericObject,
     groupByData?: GenericObject,
   ): this;
+  public groupBy(groupBy_id: string | null): this;
   public groupBy(groupBy_id: string | null, groupByData: GenericObject): this;
   public groupBy(...args: any[]) {
     const [groupBy_id, groupByData] = args;
@@ -126,17 +171,24 @@ export default class Aggregate {
   }
 
   /**
-   * Order by descending
+   * Pluck only the given column
    */
-  public orderByDesc(column: string) {
-    return this.sort(column, "desc");
+  public async pluck(column: string) {
+    return await this.select([column]).get(record => get(record, column));
   }
 
   /**
-   * Sort by multiple columns
+   * Get distinct value for the given column using aggregation
    */
-  public sortBy(columns: Record<string, "desc" | "asc">) {
-    return this.pipeline(new SortByPipeline(columns));
+  public async distinct(column: string) {
+    return await this.groupBy(column).get(record => record._id);
+  }
+
+  /**
+   * Get distinct values that are not empty
+   */
+  public async distinctHeavy(column: string) {
+    return await this.whereNotNull(column).distinct(column);
   }
 
   /**
@@ -242,6 +294,19 @@ export default class Aggregate {
   }
 
   /**
+   * Delete records
+   */
+  public async delete() {
+    const ids = await (
+      await this.select(["_id"]).pluck("_id")
+    ).map(_id => new ObjectID(_id));
+
+    return await queryBuilder.delete(this.collectionName, {
+      _id: ids,
+    });
+  }
+
+  /**
    * Where not between operator
    */
   public whereNotBetween(column: string, value: [any, any]) {
@@ -281,6 +346,27 @@ export default class Aggregate {
    */
   public whereNotIn(column: string, values: any[]) {
     return this.where(column, "notIn", values);
+  }
+
+  /**
+   * // TODO: Make a proper implementation
+   * Where location near
+   */
+  public whereNear(column: string, value: [number, number], distance: number) {
+    return this.where(column, "near", value);
+  }
+
+  /**
+   * // TODO: Make a proper implementation
+   * Get nearby location between the given min and max distance
+   */
+  public async whereNearByIn(
+    column: string,
+    value: [number, number],
+    minDistance: number,
+    maxDistance: number,
+  ) {
+    return this.where(column, value);
   }
 
   /**
@@ -345,6 +431,37 @@ export default class Aggregate {
   }
 
   /**
+   * Paginate records based on the given filter
+   */
+  public async paginate<T = any>(
+    page = 1,
+    limit = 15,
+  ): Promise<PaginationListing<T>> {
+    const totalDocumentsQuery = this.parse();
+
+    this.skip((page - 1) * limit).limit(limit);
+
+    const records = await this.get();
+
+    this.pipelines = totalDocumentsQuery;
+
+    const totalDocuments = await this.count();
+
+    const result: PaginationListing<T> = {
+      documents: records,
+      paginationInfo: {
+        limit,
+        page,
+        result: records.length,
+        total: totalDocuments,
+        pages: Math.ceil(totalDocuments / limit),
+      },
+    };
+
+    return result;
+  }
+
+  /**
    * Execute the query
    */
   public async execute() {
@@ -371,5 +488,14 @@ export default class Aggregate {
    */
   public parse() {
     return parsePipelines(this.pipelines);
+  }
+
+  /**
+   * Reset the pipeline
+   */
+  public reset() {
+    this.pipelines = [];
+
+    return this;
   }
 }

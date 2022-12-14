@@ -69,5 +69,5 @@ export type ValidationConfigurations = {
   /**
    * Rules list that will be used in the validation process
    */
-  rules?: Record<string, typeof Rule>;
+  rules?: Record<string, new (...args: any[]) => Rule>;
 };

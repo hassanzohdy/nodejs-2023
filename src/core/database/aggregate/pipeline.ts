@@ -7,7 +7,7 @@ export default class Pipeline {
   /**
    * Constructor
    */
-  public constructor(protected readonly name: string) {
+  public constructor(public readonly name: string) {
     //
   }
 
@@ -21,11 +21,26 @@ export default class Pipeline {
   }
 
   /**
+   * Get pipeline data
+   */
+  public getData() {
+    return this.pipelineData;
+  }
+
+  /**
    * Parse the pipeline
    */
   public parse() {
     return {
       ["$" + this.name]: this.pipelineData,
     };
+  }
+
+  /**
+   * Pipeline order
+   * The lower the number, the higher the priority
+   */
+  public sortOrder() {
+    return 0;
   }
 }

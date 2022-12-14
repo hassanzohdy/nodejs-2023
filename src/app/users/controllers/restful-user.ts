@@ -1,6 +1,7 @@
 import { Request, Response } from "core/http";
 import Restful from "core/router/restful";
 import { RouteResource } from "core/router/types";
+import UniqueRule from "core/validator/rules/unique";
 import User from "../models/user/user";
 
 class RestfulUser extends Restful<User> implements RouteResource {
@@ -8,6 +9,17 @@ class RestfulUser extends Restful<User> implements RouteResource {
    * Base model
    */
   protected model = User;
+
+  /**
+   * Validation
+   */
+  public validation: RouteResource["validation"] = {
+    all: {
+      rules: {
+        email: ["required", "email", new UniqueRule(User).except("id")],
+      },
+    },
+  };
 
   /**
    * Get single record

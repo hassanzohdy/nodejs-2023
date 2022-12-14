@@ -7,6 +7,7 @@ import {
   set,
 } from "@mongez/reinforcements";
 import Is from "@mongez/supportive-is";
+import { ObjectId } from "mongodb";
 import queryBuilder from "../query-builder/query-builder";
 import RelationshipModel from "./relationships";
 import {
@@ -52,6 +53,11 @@ export default abstract class Model extends RelationshipModel {
   public constructor(public originalData: Partial<ModelDocument> = {}) {
     //
     super();
+
+    if (typeof this.originalData._id === "string") {
+      this.originalData._id = new ObjectId(this.originalData._id);
+    }
+
     this.data = { ...this.originalData };
 
     this.initialData = { ...this.originalData };

@@ -1,5 +1,6 @@
 import config from "@mongez/config";
 import chalk from "chalk";
+import Rule from "./rules/rule";
 
 export default class RulesList {
   /**
@@ -23,21 +24,29 @@ export default class RulesList {
    */
   public async validate() {
     for (const ruleName of this.rules) {
-      const RuleClass = config.get(`validation.rules.${ruleName}`);
+      let rule: Rule;
 
-      if (!RuleClass) {
-        throw new Error(
-          chalk.bold(
-            `Missing Validation Rule: ${chalk.redBright(
-              ruleName + " rule",
-            )} is not listed under the configurations of ${chalk.cyan(
-              "validation.rules",
-            )} list`,
-          ),
-        );
+      if (ruleName instanceof Rule) {
+        rule = ruleName;
+      } else {
+        const RuleClass = config.get(`validation.rules.${ruleName}`);
+
+        if (!RuleClass) {
+          throw new Error(
+            chalk.bold(
+              `Missing Validation Rule: ${chalk.redBright(
+                ruleName + " rule",
+              )} is not listed under the configurations of ${chalk.cyan(
+                "validation.rules",
+              )} list`,
+            ),
+          );
+        }
+
+        rule = new RuleClass();
       }
 
-      const rule = new RuleClass(this.input, this.value);
+      rule.setInput(this.input).setValue(this.value);
 
       await rule.validate();
 

@@ -47,15 +47,29 @@ export class Connection {
         this.trigger("close", this);
       });
 
-      console.log(
-        chalk.green("Connected!"),
-        !username || !password
-          ? chalk.red("Your not making a secure authenticated connection!")
-          : "",
-      );
+      if (!username || !password) {
+        console.log(
+          chalk.yellow("⚠"),
+          chalk.cyan("[database]"),
+          chalk.greenBright("Connected"),
+          chalk.red(
+            "But you are not making a secure authenticated connection!",
+          ),
+        );
+      } else {
+        console.log(
+          chalk.green("✓"),
+          chalk.cyan("[database]"),
+          chalk.greenBright("Connected"),
+        );
+      }
 
       this.trigger("connected", this);
     } catch (error) {
+      console.log(chalk.red("Error connecting to the database!"));
+
+      console.log(error);
+
       this.trigger("error", error);
     }
   }

@@ -21,6 +21,15 @@ export class Database {
   public collection(collectionName: string) {
     return this.database.collection(collectionName);
   }
+
+  /**
+   * List collection names
+   */
+  public async listCollectionNames() {
+    return await (
+      await this.database.collections()
+    ).map(collection => collection.collectionName);
+  }
 }
 
 const database = new Database();

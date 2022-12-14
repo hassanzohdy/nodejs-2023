@@ -17,12 +17,6 @@ export default class Restful<T extends Model> implements RouteResource {
     // const records = await this.model?.list(filter);
     const query = User.aggregate();
 
-    query
-      .limit(2)
-      .where("id", ">=", 100)
-      .sort("id", "asc")
-      .with("accessTokens");
-
     return response.success({
       records: await query.get(),
     });

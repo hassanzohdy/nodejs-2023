@@ -160,7 +160,7 @@ export class QueryBuilder {
    */
   public async list(
     collectionName: string,
-    filter: Filter,
+    filter: Filter = {},
     queryHandler?: (query: FindCursor) => void,
     findOptions?: FindOptions,
   ) {

@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import connection, { Connection } from "../connection";
 import queryBuilder from "../query-builder/query-builder";
 
@@ -37,7 +38,36 @@ export class MigrationOffice {
    * Drop all migrations
    */
   public async drop() {
+    console.log(
+      chalk.blue("→"),
+      chalk.cyan("[migration]"),
+      chalk.redBright("Dropping"),
+      "all migrations",
+    );
+
     await queryBuilder.delete(this.collectionName);
+
+    console.log(
+      chalk.green("✓"),
+      chalk.cyan("[migration]"),
+      "All migrations has been " + chalk.greenBright("dropped successfully."),
+    );
+  }
+
+  /**
+   * Drop the given migration name
+   */
+  public async dropMigration(migrationName: string) {
+    await queryBuilder.delete(this.collectionName, {
+      name: migrationName,
+    });
+  }
+
+  /**
+   * Get migrations list
+   */
+  public async list() {
+    return await queryBuilder.list(this.collectionName);
   }
 }
 
