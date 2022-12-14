@@ -10,10 +10,10 @@
     "@mongez/config": "^1.0.25",
     "@mongez/dotenv": "^1.0.3",
     "@mongez/events": "^1.0.9",
-    "@mongez/fs": "^1.1.6",
+    "@mongez/fs": "^2.0.0",
     "@mongez/node": "^1.0.1",
     "@mongez/password": "^1.0.2",
-    "@mongez/reinforcements": "^2.2.3",
+    "@mongez/reinforcements": "^2.2.4",
     "@mongez/supportive-is": "^1.0.9",
     "chalk": "4",
     "dayjs": "^1.11.7",
@@ -32,20 +32,20 @@
     "format": "npx prettier --write ./**/*.{js,jsx,ts,tsx,css,md,json} --config ./.prettierrc.json"
   },
   "devDependencies": {
-    "@types/node": "^18.11.10",
-    "@typescript-eslint/eslint-plugin": "^5.45.0",
-    "@typescript-eslint/parser": "^5.45.0",
+    "@types/node": "^18.11.15",
+    "@typescript-eslint/eslint-plugin": "^5.46.1",
+    "@typescript-eslint/parser": "^5.46.1",
     "console-table-printer": "^2.11.1",
     "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-unused-imports": "^2.0.0",
     "nodemon": "^2.0.20",
-    "npm-check-updates": "^16.4.3",
-    "prettier": "^2.8.0",
+    "npm-check-updates": "^16.5.6",
+    "prettier": "^2.8.1",
     "prettier-plugin-organize-imports": "^3.2.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.1",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.4"
   }
 }

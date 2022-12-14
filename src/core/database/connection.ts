@@ -1,6 +1,6 @@
 import config from "@mongez/config";
 import events from "@mongez/events";
-import chalk from "chalk";
+import { log } from "core/logger";
 import { MongoClient } from "mongodb";
 import database, { Database } from "./database";
 
@@ -29,6 +29,7 @@ export class Connection {
     const { host, port, username, password, name } = this.configurations;
 
     try {
+      log.info("database", "connection", "Connecting to the database");
       this.client = await MongoClient.connect(`mongodb://${host}:${port}`, {
         auth: {
           username: username,
@@ -48,27 +49,18 @@ export class Connection {
       });
 
       if (!username || !password) {
-        console.log(
-          chalk.yellow("⚠"),
-          chalk.cyan("[database]"),
-          chalk.greenBright("Connected"),
-          chalk.red(
-            "But you are not making a secure authenticated connection!",
-          ),
+        log.warn(
+          "database",
+          "connection",
+          "Connected, but you are not making a secure authenticated connection!",
         );
       } else {
-        console.log(
-          chalk.green("✓"),
-          chalk.cyan("[database]"),
-          chalk.greenBright("Connected"),
-        );
+        log.success("database", "connection", "Connected to the database!");
       }
 
       this.trigger("connected", this);
     } catch (error) {
-      console.log(chalk.red("Error connecting to the database!"));
-
-      console.log(error);
+      log.error("database", "connection", error);
 
       this.trigger("error", error);
     }

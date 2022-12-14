@@ -1,3 +1,4 @@
+import { log } from "core/logger";
 import router from "core/router";
 import { setBaseUrl } from "core/utils/urls";
 import { httpConfig } from "./config";
@@ -16,6 +17,7 @@ export default async function createHttpApplication() {
   router.scan(server);
 
   try {
+    log.info("http", "server", "Connecting to the server");
     // 👇🏻 We can use the url of the server
     const baseUrl = await server.listen({
       port: httpConfig("port"),
@@ -25,7 +27,7 @@ export default async function createHttpApplication() {
     // update base url
     setBaseUrl(baseUrl);
 
-    console.log(`Start browsing using ${baseUrl}`);
+    log.success("http", "server", `Server is listening on ${baseUrl}`);
   } catch (err) {
     console.log(err);
 
