@@ -55,7 +55,7 @@ export class Connection {
           "Connected, but you are not making a secure authenticated connection!",
         );
       } else {
-        log.success("database", "connection", "Connected to the database!");
+        log.success("database", "connection", "Connected to the database");
       }
 
       this.trigger("connected", this);

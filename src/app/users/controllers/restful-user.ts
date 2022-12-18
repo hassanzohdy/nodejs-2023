@@ -3,6 +3,7 @@ import Restful from "core/router/restful";
 import { RouteResource } from "core/router/types";
 import UniqueRule from "core/validator/rules/unique";
 import User from "../models/user/user";
+import usersRepository from "../repositories/users-repository";
 
 class RestfulUser extends Restful<User> implements RouteResource {
   /**
@@ -20,6 +21,15 @@ class RestfulUser extends Restful<User> implements RouteResource {
       },
     },
   };
+
+  /**
+   * {@inheritdoc}
+   */
+  public async list(request: Request, response: Response): Promise<Response> {
+    return response.success({
+      users: await usersRepository.list(),
+    });
+  }
 
   /**
    * Get single record

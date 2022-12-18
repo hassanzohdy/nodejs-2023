@@ -1,4 +1,4 @@
-import Resource, { ResourceOutput } from "core/resources/resource";
+import { Resource, ResourceOutput } from "core/resources";
 
 export default class UserResource extends Resource {
   /**

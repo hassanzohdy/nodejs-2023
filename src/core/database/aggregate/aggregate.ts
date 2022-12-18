@@ -431,6 +431,17 @@ export default class Aggregate {
   }
 
   /**
+   * Explain the query
+   */
+  public async explain() {
+    const collection = database.collection(this.collectionName);
+
+    return await collection.aggregate(this.parse(), {
+      explain: true,
+    });
+  }
+
+  /**
    * Paginate records based on the given filter
    */
   public async paginate<T = any>(

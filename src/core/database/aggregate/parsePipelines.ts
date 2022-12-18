@@ -6,6 +6,8 @@ export function parsePipelines(pipelines: (Pipeline | GenericObject)[]) {
     .sort((pipeline1, pipeline2) => {
       if (!pipeline1.sortOrder) return 1;
 
+      if (!pipeline2.sortOrder) return -1;
+
       // the lower the number, the higher the priority
       return pipeline1.sortOrder() - pipeline2.sortOrder();
     })

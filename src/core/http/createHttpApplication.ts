@@ -28,10 +28,9 @@ export default async function createHttpApplication() {
     setBaseUrl(baseUrl);
 
     log.success("http", "server", `Server is listening on ${baseUrl}`);
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    log.error("http", "server", error);
 
-    server.log.error(err);
     process.exit(1); // stop the process, exit with error
   }
 }

@@ -1,4 +1,5 @@
 import ConsoleLog from "./channels/ConsoleLog";
+import FileLog from "./channels/FileLog";
 import LogChannel from "./LogChannel";
 import { LogLevel } from "./types";
 
@@ -6,7 +7,7 @@ export class Logger {
   /**
    * Current channel
    */
-  protected channels: LogChannel[] = [new ConsoleLog()];
+  protected channels: LogChannel[] = [new ConsoleLog(), new FileLog()];
 
   /**
    * Add a new channel

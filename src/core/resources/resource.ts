@@ -3,37 +3,10 @@ import { GenericObject } from "@mongez/reinforcements/cjs/types";
 import Is from "@mongez/supportive-is";
 import { Model } from "core/database";
 import { assetsUrl, uploadsUrl, url } from "core/utils/urls";
+import dayjs from "dayjs";
+import { ResourceData, ResourceOutput } from "./types";
 
 const missingKey = Symbol("missing");
-
-/**
- * Built in casts
- */
-export type OutputCastType =
-  | "string"
-  | "number"
-  | "boolean"
-  | "float"
-  | "integer"
-  | "double"
-  | "date"
-  | "url"
-  | "uploadsUrl"
-  | "publicUrl"
-  | "assetsUrl";
-
-/**
- * Resource output
- */
-export type ResourceOutput = Record<
-  string,
-  OutputCastType | typeof Resource | ((value: any) => Promise<any> | any)
->;
-
-/**
- * Allowed resource data
- */
-export type ResourceData = GenericObject | typeof Model | typeof Resource;
 
 export default class Resource {
   /**
@@ -60,6 +33,11 @@ export default class Resource {
    * Defaults when key is missing from the given data
    */
   protected defaults = {};
+
+  /**
+   * Default date format
+   */
+  protected dateFormat = "DD-MM-YYYY HH:mm:ss";
 
   /**
    * Constructor
@@ -183,14 +161,20 @@ export default class Resource {
         continue;
       }
 
-      if (Is.empty(value)) continue;
+      if (Is.object(value)) {
+        if (!Is.plainObject(value) && !Is.empty(value)) {
+          continue;
+        }
+      } else if (Is.empty(value)) continue;
 
       if (Array.isArray(value)) {
-        this.data[key] = value.map(
-          async item => await this.transformValue(item, valueType),
+        set(
+          this.data,
+          key,
+          value.map(async item => await this.transformValue(item, valueType)),
         );
       } else {
-        this.data[key] = await this.transformValue(value, valueType);
+        set(this.data, key, await this.transformValue(value, valueType));
       }
     }
   }
@@ -255,6 +239,16 @@ export default class Resource {
         return String(value);
       case "boolean":
         return Boolean(value);
+      case "date":
+        return {
+          format: dayjs(value).format(this.dateFormat),
+          timestamp: dayjs(value).unix(),
+          human: dayjs(value).fromNow(),
+          text: new Intl.DateTimeFormat("en-US", {
+            dateStyle: "long",
+            timeStyle: "medium",
+          }).format(value),
+        };
       case "url":
         return url(value);
       case "uploadsUrl":

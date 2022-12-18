@@ -1,4 +1,5 @@
-import { putFile } from "@mongez/fs";
+import { appendFile, ensureDirectory, fileExists, touch } from "@mongez/fs";
+import { storagePath } from "core/utils/paths";
 import dayjs from "dayjs";
 import { EOL } from "os";
 import LogChannel from "../LogChannel";
@@ -27,28 +28,36 @@ export default class FileLog extends LogChannel {
   /**
    * {@inheritdoc}
    */
-  public async log(
-    message: any,
-    level: LogLevel,
-    debugMode: DebugMode = this.currentDebugMode,
-  ) {
+  public log(module: string, action: string, message: any, level: LogLevel) {
     // check for debug mode
 
-    const fileName = this.getFileName(debugMode);
+    const fileName = this.getFileName(this.currentDebugMode);
+
+    const logsDirectory = storagePath("logs");
+
+    ensureDirectory(logsDirectory);
+
+    const filePath = logsDirectory + "/" + fileName;
+
+    if (!fileExists(filePath)) {
+      touch(filePath);
+    }
+
+    const date = dayjs().format("DD-MM-YYYY HH:mm:ss");
+
+    let content = `[${date}] [${level}] [${module}][${action}]: `;
 
     // check if message is an instance of Error
     if (message instanceof Error) {
       // in that case we need to store the error message and stack trace
-      let content = `[${level}]` + message.message + EOL;
+      content += message.message + EOL;
       content += `[trace]` + EOL;
       content += message.stack;
-
-      message = content;
     } else {
-      message = `[${level}] ${message}`;
+      content += message;
     }
 
-    putFile(`logs/${fileName}`, message + EOL);
+    appendFile(filePath, content + EOL);
   }
 
   /**

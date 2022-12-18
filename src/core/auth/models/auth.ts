@@ -1,7 +1,6 @@
 import { verify } from "@mongez/password";
 import { except } from "@mongez/reinforcements";
-import { Model } from "core/database";
-import { ChildModel } from "core/database/model/types";
+import { ChildModel, Model } from "core/database";
 import jwt from "../jwt";
 import AccessToken from "./access-token/access-token";
 

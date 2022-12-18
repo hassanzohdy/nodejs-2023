@@ -1,4 +1,4 @@
-import Resource from "../../../core/resources/resource";
+import { Resource } from "core/resources";
 
 export default class AddressResource extends Resource {
   /**

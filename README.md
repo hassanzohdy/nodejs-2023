@@ -4,11 +4,14 @@ This project is aimed to help you build your own base code from the very beginni
 
 ## TODO
 
-- Logger Module
 - Cache System
 - Localization
 - Storage And uploads
-- Aggregate Framework
 - Repositories
 - Resources
 - Model Associations
+
+## MongoDB
+
+- Add Rollback feature
+- Make aggregate pipeline functions instead of Classes
