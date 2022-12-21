@@ -4,7 +4,7 @@ export default class Post extends Model {
   /**
    * Collection name
    */
-  public static collectionName = "posts";
+  public static collection = "posts";
 
   /**
    * {@inheritDoc}

@@ -4,5 +4,5 @@ export default class AccessToken extends Model {
   /**
    * {@inheritDoc}
    */
-  public static collectionName = "accessTokens";
+  public static collection = "accessTokens";
 }

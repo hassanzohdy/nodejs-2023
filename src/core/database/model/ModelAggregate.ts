@@ -8,7 +8,7 @@ export default class ModelAggregate<T> extends Aggregate {
    * Constructor
    */
   public constructor(protected readonly model: any) {
-    super(model.collectionName);
+    super(model.collection);
   }
 
   /**
@@ -18,6 +18,20 @@ export default class ModelAggregate<T> extends Aggregate {
     mapData: (record: any) => any = record => new this.model(record),
   ) {
     return (await super.get(mapData)) as T[];
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public async first() {
+    return (await super.first()) as T | null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public async last() {
+    return (await super.last()) as T | null;
   }
 
   /**
@@ -73,7 +87,7 @@ export default class ModelAggregate<T> extends Aggregate {
     this.lookup({
       as,
       single,
-      from: model.collectionName,
+      from: model.collection,
       localField: localField || `${as}.id`,
       foreignField: foreignField || "id",
       pipeline,

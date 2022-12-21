@@ -48,6 +48,11 @@ export default abstract class Model extends RelationshipModel {
   protected casts: Casts = {};
 
   /**
+   * Guarded fields
+   */
+  protected guarded: string[] = [];
+
+  /**
    * Constructor
    */
   public constructor(public originalData: Partial<ModelDocument> = {}) {
@@ -60,7 +65,7 @@ export default abstract class Model extends RelationshipModel {
 
     this.data = { ...this.originalData };
 
-    this.initialData = { ...this.originalData };
+    this.initialData = { ...this.data };
   }
 
   /**
@@ -155,7 +160,7 @@ export default abstract class Model extends RelationshipModel {
       // perform an update operation
       // check if the data has changed
       // if not changed, then do not do anything
-      if (areEqual(this.originalData, this.data)) return;
+      if (areEqual(this.originalData, this.data)) return this;
 
       mode = "update";
 
@@ -164,7 +169,7 @@ export default abstract class Model extends RelationshipModel {
       this.castData();
 
       await queryBuilder.replace(
-        this.getCollectionName(),
+        this.getCollection(),
         {
           _id: this.data._id,
         },
@@ -197,15 +202,14 @@ export default abstract class Model extends RelationshipModel {
 
       this.castData();
 
-      this.data = await queryBuilder.create(
-        this.getCollectionName(),
-        this.data,
-      );
+      this.data = await queryBuilder.create(this.getCollection(), this.data);
     }
 
     this.originalData = { ...this.data };
 
     this.startSyncing(mode);
+
+    return this;
   }
 
   /**
@@ -217,8 +221,6 @@ export default abstract class Model extends RelationshipModel {
 
       let value = this.get(column);
 
-      if (value === undefined) continue;
-
       const castType = this.casts[column];
 
       const castValue = (value: any) => {
@@ -226,7 +228,7 @@ export default abstract class Model extends RelationshipModel {
         if (value instanceof Model) {
           value = value.data;
         } else if (typeof castType === "function") {
-          value = (castType as CustomCastType)(column, value, this);
+          value = (castType as CustomCastType)(value, column, this);
         } else {
           value = this.castValue(value, castType);
         }
@@ -248,22 +250,25 @@ export default abstract class Model extends RelationshipModel {
    * Cast the given value based on the given cast type
    */
   protected castValue(value: any, castType: CastType) {
+    const isEmpty = Is.empty(value);
     switch (castType) {
       case "string":
-        return String(value);
+        return isEmpty ? "" : String(value);
 
       case "number":
-        return Number(value);
+        return isEmpty ? 0 : Number(value);
 
       case "int":
       case "integer":
-        return parseInt(value);
+        return isEmpty ? 0 : parseInt(value);
 
       case "float":
-        return parseFloat(value);
+        return isEmpty ? 0 : parseFloat(value);
 
       case "bool":
       case "boolean":
+        if (isEmpty) return false;
+
         if (value === "true") return true;
 
         if (value === "false" || value === "0" || value === 0) return false;
@@ -271,6 +276,8 @@ export default abstract class Model extends RelationshipModel {
         return Boolean(value);
 
       case "date":
+        if (isEmpty) return new Date();
+
         if (typeof value === "string") {
           return new Date(value);
         }
@@ -287,13 +294,15 @@ export default abstract class Model extends RelationshipModel {
 
         return new Date();
       case "location":
+        if (isEmpty) return null;
+
         return {
           type: "Point",
           coordinates: [Number(value[0]), Number(value[1])],
         };
 
       case "object":
-        if (!value) return {};
+        if (isEmpty) return {};
 
         if (typeof value === "string") {
           return JSON.parse(value);
@@ -301,7 +310,7 @@ export default abstract class Model extends RelationshipModel {
 
         return value;
       case "array":
-        if (!value) return [];
+        if (isEmpty) return [];
 
         if (typeof value === "string") {
           return JSON.parse(value);
@@ -333,13 +342,13 @@ export default abstract class Model extends RelationshipModel {
     this.data.deletedAt = new Date();
 
     // users -> userTrash
-    await queryBuilder.create(this.getCollectionName() + "Trash", {
+    await queryBuilder.create(this.getCollection() + "Trash", {
       document: this.data,
       _id: this.data._id,
       id: this.data.id,
     });
 
-    await queryBuilder.deleteOne(this.getCollectionName(), {
+    await queryBuilder.deleteOne(this.getCollection(), {
       _id: this.data._id,
     });
 

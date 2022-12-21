@@ -11,15 +11,15 @@ export class QueryBuilder {
   /**
    * Get collection query for the given collection name
    */
-  public query(collectionName: string) {
-    return this.connection.database.collection(collectionName);
+  public query(collection: string) {
+    return this.connection.database.collection(collection);
   }
 
   /**
    * Create a new document in the given collection
    */
-  public async create(collectionName: string, data: Document) {
-    const query = this.query(collectionName);
+  public async create(collection: string, data: Document) {
+    const query = this.query(collection);
 
     const result = await query.insertOne(data);
 
@@ -33,12 +33,12 @@ export class QueryBuilder {
    * Update model by the given id
    */
   public async update(
-    collectionName: string,
+    collection: string,
     filter: Filter,
     data: Document,
   ): Promise<Partial<ModelDocument> | null> {
     // get the query of the current collection
-    const query = this.query(collectionName);
+    const query = this.query(collection);
 
     const result = await query.findOneAndUpdate(
       filter,
@@ -57,11 +57,11 @@ export class QueryBuilder {
    * Replace the entire document for the given document id with the given new data
    */
   public async replace(
-    collectionName: string,
+    collection: string,
     filter: Filter,
     data: Document,
   ): Promise<Partial<ModelDocument> | null> {
-    const query = this.query(collectionName);
+    const query = this.query(collection);
 
     const result = await query.findOneAndReplace(filter, data, {
       returnDocument: "after",
@@ -75,12 +75,12 @@ export class QueryBuilder {
    * if filter has no matching
    */
   public async upsert(
-    collectionName: string,
+    collection: string,
     filter: Filter,
     data: Document,
   ): Promise<Partial<ModelDocument> | null> {
     // get the query of the current collection
-    const query = this.query(collectionName);
+    const query = this.query(collection);
 
     // execute the update operation
     const result = await query.findOneAndUpdate(
@@ -100,11 +100,8 @@ export class QueryBuilder {
   /**
    * Perform a single delete operation for the given collection
    */
-  public async deleteOne(
-    collectionName: string,
-    filter: Filter,
-  ): Promise<boolean> {
-    const query = this.query(collectionName);
+  public async deleteOne(collection: string, filter: Filter): Promise<boolean> {
+    const query = this.query(collection);
 
     const result = await query.deleteOne(filter);
 
@@ -115,10 +112,10 @@ export class QueryBuilder {
    * Delete multiple documents from the given collection
    */
   public async delete(
-    collectionName: string,
+    collection: string,
     filter: Filter = {},
   ): Promise<number> {
-    const query = this.query(collectionName);
+    const query = this.query(collection);
 
     const result = await query.deleteMany(filter);
 
@@ -129,11 +126,11 @@ export class QueryBuilder {
    * Find a single document for the given collection with the given filter
    */
   public async first(
-    collectionName: string,
+    collection: string,
     filter: Filter = {},
     findOptions?: FindOptions,
   ) {
-    const query = this.query(collectionName);
+    const query = this.query(collection);
 
     return await query.findOne(filter, findOptions);
   }
@@ -141,8 +138,8 @@ export class QueryBuilder {
   /**
    * Find last document for the given collection with the given filter
    */
-  public async last(collectionName: string, filter: Filter = {}) {
-    const query = this.query(collectionName);
+  public async last(collection: string, filter: Filter = {}) {
+    const query = this.query(collection);
 
     const results = await query
       .find(filter)
@@ -159,12 +156,12 @@ export class QueryBuilder {
    * Find multiple document for the given collection with the given filter
    */
   public async list(
-    collectionName: string,
+    collection: string,
     filter: Filter = {},
     queryHandler?: (query: FindCursor) => void,
     findOptions?: FindOptions,
   ) {
-    const query = this.query(collectionName);
+    const query = this.query(collection);
 
     const findOperation = query.find(filter, findOptions);
 
@@ -178,8 +175,8 @@ export class QueryBuilder {
   /**
    * Find latest documents for the given collection with the given filter
    */
-  public async latest(collectionName: string, filter: Filter = {}) {
-    const query = this.query(collectionName);
+  public async latest(collection: string, filter: Filter = {}) {
+    const query = this.query(collection);
 
     return await query
       .find(filter)
@@ -193,11 +190,11 @@ export class QueryBuilder {
    * Get distinct values for the given collection with the given filter
    */
   public async distinct(
-    collectionName: string,
+    collection: string,
     field: string,
     filter: Filter = {},
   ) {
-    const query = this.query(collectionName);
+    const query = this.query(collection);
 
     return await query.distinct(field, filter);
   }
@@ -205,8 +202,8 @@ export class QueryBuilder {
   /**
    * Count documents for the given collection with the given filter
    */
-  public async count(collectionName: string, filter: Filter = {}) {
-    return await this.query(collectionName).countDocuments(filter);
+  public async count(collection: string, filter: Filter = {}) {
+    return await this.query(collection).countDocuments(filter);
   }
 }
 

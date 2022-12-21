@@ -1,4 +1,5 @@
 import config from "@mongez/config";
+import Is from "@mongez/supportive-is";
 import chalk from "chalk";
 import Rule from "./rules/rule";
 
@@ -23,12 +24,22 @@ export default class RulesList {
    * Validate the rules
    */
   public async validate() {
-    for (const ruleName of this.rules) {
+    if (!this.rules.includes("required") && Is.empty(this.value)) return;
+
+    for (let ruleName of this.rules) {
       let rule: Rule;
+
+      let ruleOptions = [];
 
       if (ruleName instanceof Rule) {
         rule = ruleName;
       } else {
+        if (ruleName.includes(":")) {
+          [ruleName, ruleOptions] = ruleName.split(":");
+
+          ruleOptions = ruleOptions.split(",");
+        }
+
         const RuleClass = config.get(`validation.rules.${ruleName}`);
 
         if (!RuleClass) {
@@ -46,7 +57,7 @@ export default class RulesList {
         rule = new RuleClass();
       }
 
-      rule.setInput(this.input).setValue(this.value);
+      rule.setOptions(ruleOptions).setInput(this.input).setValue(this.value);
 
       await rule.validate();
 

@@ -18,6 +18,6 @@ export default class StringRule extends Rule {
    * Get error message
    */
   public error() {
-    return `${this.input} is not a string`;
+    return this.trans("string");
   }
 }

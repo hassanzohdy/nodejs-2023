@@ -1,3 +1,4 @@
+import Is from "@mongez/supportive-is";
 import Rule from "./rule";
 
 export default class RequiredRule extends Rule {
@@ -10,13 +11,13 @@ export default class RequiredRule extends Rule {
    * Validate the rule
    */
   public async validate() {
-    this.isValid = Boolean(this.value) && this.value.length > 0;
+    this.isValid = !Is.empty(this.value);
   }
 
   /**
    * Get error message
    */
   public error() {
-    return `${this.input} is required`;
+    return this.trans("required");
   }
 }

@@ -1,3 +1,6 @@
+import { trans } from "@mongez/localization";
+import { merge } from "@mongez/reinforcements";
+
 export default abstract class Rule {
   /**
    * Rule name
@@ -18,6 +21,32 @@ export default abstract class Rule {
    * Input value
    */
   protected value = "";
+
+  /**
+   * Rule options
+   * This can be passed using the following syntax:
+   * rule:option1,option2,option3
+   */
+  protected options: any[] = [];
+
+  /**
+   * Error message
+   */
+  protected errorMessage = "";
+
+  /**
+   * Error message attributes
+   */
+  protected errorMessageAttributes: any = {};
+
+  /**
+   * Set rule options
+   */
+  public setOptions(options: any[]) {
+    this.options = options;
+
+    return this;
+  }
 
   /**
    * Validate the rule
@@ -56,6 +85,21 @@ export default abstract class Rule {
    */
   public fails() {
     return this.isValid === false;
+  }
+
+  /**
+   * Translate the given key and its attributes
+   */
+  public trans(key: string, attributes: any = {}) {
+    attributes = merge(
+      {
+        input: this.input,
+        value: this.value,
+      },
+      attributes,
+      this.errorMessageAttributes,
+    );
+    return trans(`validation.${key}`, attributes);
   }
 
   public error() {

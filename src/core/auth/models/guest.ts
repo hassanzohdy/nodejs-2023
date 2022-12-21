@@ -4,7 +4,7 @@ export default class Guest extends Auth {
   /**
    * {@inheritDoc}
    */
-  public static collectionName = "guests";
+  public static collection = "guests";
 
   /**
    * Get user type

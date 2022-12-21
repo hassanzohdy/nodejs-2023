@@ -25,6 +25,11 @@ export default class UniqueRule extends Rule {
   protected exceptValue: any = null;
 
   /**
+   * Is case sensitive
+   */
+  protected isCaseSensitive = true;
+
+  /**
    * Model
    */
   protected model?: typeof Model;
@@ -43,6 +48,22 @@ export default class UniqueRule extends Rule {
     } else {
       this.model = tableName;
     }
+  }
+
+  /**
+   * Ignore case sensitive
+   */
+  public insensitive() {
+    this.isCaseSensitive = false;
+    return this;
+  }
+
+  /**
+   * Strict to be sensitive
+   */
+  public sensitive() {
+    this.isCaseSensitive = true;
+    return this;
   }
 
   /**
@@ -71,10 +92,15 @@ export default class UniqueRule extends Rule {
       query = new Aggregate(this.tableName as string);
     }
 
-    query.where(this.columnName || this.input, this.value);
+    const value = this.isCaseSensitive ? this.value : this.value.toLowerCase();
+
+    query.where(this.columnName || this.input, value);
 
     if (this.exceptValue) {
-      query.where(this.exceptColumn, "!=", this.exceptValue);
+      const exceptValue = this.isCaseSensitive
+        ? this.exceptValue
+        : this.exceptValue.toLowerCase();
+      query.where(this.exceptColumn, "!=", exceptValue);
     }
 
     this.isValid = (await query.count()) === 0;
@@ -84,6 +110,6 @@ export default class UniqueRule extends Rule {
    * Get error message
    */
   public error() {
-    return `${this.input} is required`;
+    return this.trans("unique");
   }
 }

@@ -102,7 +102,7 @@ export default abstract class RelationshipModel extends CrudModel {
           : model.data
         : model;
 
-    if (columnValue === undefined) return;
+    if (columnValue === undefined) return this;
 
     const documentsList = this.get(column, []);
 

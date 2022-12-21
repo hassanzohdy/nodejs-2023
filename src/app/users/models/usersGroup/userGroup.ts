@@ -4,7 +4,7 @@ export default class UserGroup extends Model {
   /**
    * Collection name
    */
-  public static collectionName = "usersGroups";
+  public static collection = "usersGroups";
 
   /**
    * {@inheritDoc}

@@ -69,12 +69,12 @@ export default class FileLog extends LogChannel {
     switch (debugMode) {
       case DebugMode.hourly:
         // file name will be like: 2021-01-01-12-00.log
-        fileName = dayjs().format("YYYY-MM-DD-HH-00.log");
+        fileName = dayjs().format("DD-MM-YYYY-HH-00.log");
         break;
 
       case DebugMode.daily:
         // file name will be like: 2021-01-01.log
-        fileName = dayjs().format("YYYY-MM-DD.log");
+        fileName = dayjs().format("DD-MM-YYYY.log");
         break;
 
       case DebugMode.monthly:

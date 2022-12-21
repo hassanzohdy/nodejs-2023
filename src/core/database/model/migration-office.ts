@@ -6,7 +6,7 @@ export class MigrationOffice {
   /**
    * Master Mind Collection name
    */
-  public collectionName = "migrations";
+  public collection = "migrations";
 
   /**
    * Connection Instance
@@ -17,7 +17,7 @@ export class MigrationOffice {
    * Check if the given migration name is already migrated
    */
   public async isMigrated(migrationName: string): Promise<boolean> {
-    const migrationDocument = await queryBuilder.first(this.collectionName, {
+    const migrationDocument = await queryBuilder.first(this.collection, {
       name: migrationName,
     });
 
@@ -28,7 +28,7 @@ export class MigrationOffice {
    * Migrate the given migration name
    */
   public async migrate(migrationName: string) {
-    await queryBuilder.create(this.collectionName, {
+    await queryBuilder.create(this.collection, {
       name: migrationName,
       createdAt: new Date(),
     });
@@ -45,7 +45,7 @@ export class MigrationOffice {
       "all migrations",
     );
 
-    await queryBuilder.delete(this.collectionName);
+    await queryBuilder.delete(this.collection);
 
     console.log(
       chalk.green("✓"),
@@ -58,7 +58,7 @@ export class MigrationOffice {
    * Drop the given migration name
    */
   public async dropMigration(migrationName: string) {
-    await queryBuilder.delete(this.collectionName, {
+    await queryBuilder.delete(this.collection, {
       name: migrationName,
     });
   }
@@ -67,7 +67,7 @@ export class MigrationOffice {
    * Get migrations list
    */
   public async list() {
-    return await queryBuilder.list(this.collectionName);
+    return await queryBuilder.list(this.collection);
   }
 }
 

@@ -344,7 +344,7 @@ export class Response {
   /**
    * Send a success response
    */
-  public success(data: any) {
+  public success(data: any = { success: true }) {
     return this.send(data);
   }
 

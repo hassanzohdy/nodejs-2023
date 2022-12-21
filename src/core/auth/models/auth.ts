@@ -1,5 +1,5 @@
 import { verify } from "@mongez/password";
-import { except } from "@mongez/reinforcements";
+import { getUserByEmailOrUsername } from "app/users/utils";
 import { ChildModel, Model } from "core/database";
 import jwt from "../jwt";
 import AccessToken from "./access-token/access-token";
@@ -33,6 +33,8 @@ export default abstract class Auth extends Model {
     AccessToken.create({
       token,
       user: data,
+    }).then(accessToken => {
+      this.associate("tokens", accessToken).save();
     });
 
     return token;
@@ -46,7 +48,7 @@ export default abstract class Auth extends Model {
     data: any,
   ): Promise<T | null> {
     // find first user with the given data, but exclude from it the password
-    const user = await this.first(except(data, ["password"]));
+    const user = await getUserByEmailOrUsername(data.email);
 
     if (!user) {
       return null;
@@ -54,10 +56,12 @@ export default abstract class Auth extends Model {
 
     // now verify the password
 
-    if (!verify((user as any).get("password"), data.password)) {
+    if (!verify(user.get("password"), data.password)) {
       return null;
     }
 
-    return user;
+    if (!user.get("isActive")) return null;
+
+    return user as T;
   }
 }

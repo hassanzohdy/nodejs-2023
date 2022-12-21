@@ -4,12 +4,13 @@ import connection, { Connection } from "../connection";
 import { Database } from "../database";
 import masterMind from "./master-mind";
 import Model from "./model";
+import { Document } from "./types";
 
 export default abstract class BaseModel {
   /**
    * Collection Name
    */
-  public static collectionName = "";
+  public static collection = "";
 
   /**
    * Connection instance
@@ -40,7 +41,7 @@ export default abstract class BaseModel {
    * Get collection query
    */
   public static query() {
-    return this.connection.database.collection(this.collectionName);
+    return this.connection.database.collection(this.collection);
   }
 
   /**
@@ -48,7 +49,7 @@ export default abstract class BaseModel {
    */
   public static async generateNextId() {
     return await masterMind.generateNextId(
-      this.collectionName,
+      this.collection,
       this.incrementIdBy,
       this.initialId,
     );
@@ -58,21 +59,21 @@ export default abstract class BaseModel {
    * Get last id of current model
    */
   public static async getLastId() {
-    return await masterMind.getLastId(this.collectionName);
+    return await masterMind.getLastId(this.collection);
   }
 
   /**
    * Get an instance of child class
    */
-  protected static self(data: Record<string, any>) {
+  protected static self(data: Document) {
     return new (this as any)(data);
   }
 
   /**
    * Get collection name
    */
-  public getCollectionName(): string {
-    return this.getStaticProperty("collectionName");
+  public getCollection(): string {
+    return this.getStaticProperty("collection");
   }
 
   /**

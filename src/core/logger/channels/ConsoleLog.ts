@@ -69,5 +69,9 @@ export default class ConsoleLog extends LogChannel {
           message,
         );
     }
+
+    if (message instanceof Error) {
+      console.log(message.stack);
+    }
   }
 }

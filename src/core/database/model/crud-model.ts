@@ -22,9 +22,25 @@ export default abstract class CrudModel extends BaseModel {
     const model = this.self(data); // get new instance of model
 
     // save the model, and generate the proper columns needed
+    await model.beforeCreating(data);
     await model.save();
+    await model.onCreate();
 
     return model;
+  }
+
+  /**
+   * Called before creating a new record
+   */
+  protected async beforeCreating<T>(this: ChildModel<T>, data: Document) {
+    //
+  }
+
+  /**
+   * Called after creating a new record
+   */
+  protected async onCreate<T>(this: ChildModel<T>) {
+    //
   }
 
   /**
@@ -73,7 +89,7 @@ export default abstract class CrudModel extends BaseModel {
   ): Promise<T | null> {
     // retrieve the document from trash collection
     const result = await queryBuilder.first(
-      this.collectionName + "Trash",
+      this.collection + "Trash",
       this.prepareFilters({
         [this.primaryIdColumn]: id,
       }),
@@ -135,7 +151,7 @@ export default abstract class CrudModel extends BaseModel {
     value: any,
   ): Promise<T | null> {
     const result = await queryBuilder.first(
-      this.collectionName,
+      this.collection,
       this.prepareFilters({
         [column]: value,
       }),
@@ -152,7 +168,7 @@ export default abstract class CrudModel extends BaseModel {
     filter: Filter = {},
   ): Promise<T[]> {
     const documents = await queryBuilder.list(
-      this.collectionName,
+      this.collection,
       this.prepareFilters(filter),
     );
 
@@ -171,7 +187,7 @@ export default abstract class CrudModel extends BaseModel {
     filter = this.prepareFilters(filter);
 
     const documents = await queryBuilder.list(
-      this.collectionName,
+      this.collection,
       filter,
       query => {
         query.skip((page - 1) * limit).limit(limit);
@@ -179,7 +195,7 @@ export default abstract class CrudModel extends BaseModel {
     );
 
     const totalDocumentsOfFilter = await queryBuilder.count(
-      this.collectionName,
+      this.collection,
       filter,
     );
 
@@ -202,7 +218,7 @@ export default abstract class CrudModel extends BaseModel {
    */
   public static async count(filter: Filter = {}) {
     return await queryBuilder.count(
-      this.collectionName,
+      this.collection,
       this.prepareFilters(filter),
     );
   }
@@ -215,7 +231,7 @@ export default abstract class CrudModel extends BaseModel {
     filter: Filter = {},
   ): Promise<T | null> {
     const result = await queryBuilder.first(
-      this.collectionName,
+      this.collection,
       this.prepareFilters(filter),
     );
 
@@ -230,7 +246,7 @@ export default abstract class CrudModel extends BaseModel {
     filter: Filter = {},
   ): Promise<T | null> {
     const result = await queryBuilder.last(
-      this.collectionName,
+      this.collection,
       this.prepareFilters(filter),
     );
 
@@ -245,7 +261,7 @@ export default abstract class CrudModel extends BaseModel {
     filter: Filter = {},
   ): Promise<T[]> {
     const documents = await queryBuilder.latest(
-      this.collectionName,
+      this.collection,
       this.prepareFilters(filter),
     );
 
@@ -266,7 +282,7 @@ export default abstract class CrudModel extends BaseModel {
       typeof filter === "number"
     ) {
       return (await queryBuilder.deleteOne(
-        this.collectionName,
+        this.collection,
         this.prepareFilters({
           [this.primaryIdColumn]: filter,
         }),
@@ -275,7 +291,7 @@ export default abstract class CrudModel extends BaseModel {
         : 0;
     }
 
-    return await queryBuilder.delete(this.collectionName, filter);
+    return await queryBuilder.delete(this.collection, filter);
   }
 
   /**
@@ -287,7 +303,7 @@ export default abstract class CrudModel extends BaseModel {
     filter: Filter = {},
   ): Promise<any[]> {
     return await queryBuilder.distinct(
-      this.collectionName,
+      this.collection,
       column,
       this.prepareFilters(filter),
     );

@@ -32,7 +32,7 @@ export default class Aggregate {
   /**
    * Constructor
    */
-  public constructor(protected readonly collectionName: string) {}
+  public constructor(protected readonly collection: string) {}
 
   /**
    * Sort by the given column
@@ -301,7 +301,7 @@ export default class Aggregate {
       await this.select(["_id"]).pluck("_id")
     ).map(_id => new ObjectID(_id));
 
-    return await queryBuilder.delete(this.collectionName, {
+    return await queryBuilder.delete(this.collection, {
       _id: ids,
     });
   }
@@ -422,6 +422,15 @@ export default class Aggregate {
   }
 
   /**
+   * Get last result
+   */
+  public async last(): Promise<any> {
+    const results = await this.orderByDesc("id").limit(1).get();
+
+    return results[0];
+  }
+
+  /**
    * Get the data
    */
   public async get(mapData?: (data: any) => any): Promise<any[]> {
@@ -434,7 +443,7 @@ export default class Aggregate {
    * Explain the query
    */
   public async explain() {
-    const collection = database.collection(this.collectionName);
+    const collection = database.collection(this.collection);
 
     return await collection.aggregate(this.parse(), {
       explain: true,
@@ -476,7 +485,7 @@ export default class Aggregate {
    * Execute the query
    */
   public async execute() {
-    const collection = database.collection(this.collectionName);
+    const collection = database.collection(this.collection);
 
     return await collection.aggregate(this.parse()).toArray();
   }

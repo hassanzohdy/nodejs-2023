@@ -1,0 +1,2 @@
+import "./localization";
+import "./routes";

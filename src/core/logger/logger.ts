@@ -1,4 +1,6 @@
+import ChunkFileLog from "./channels/ChunkFileLog";
 import ConsoleLog from "./channels/ConsoleLog";
+import DatabaseLog from "./channels/DatabaseLog";
 import FileLog from "./channels/FileLog";
 import LogChannel from "./LogChannel";
 import { LogLevel } from "./types";
@@ -7,7 +9,12 @@ export class Logger {
   /**
    * Current channel
    */
-  protected channels: LogChannel[] = [new ConsoleLog(), new FileLog()];
+  protected channels: LogChannel[] = [
+    new ConsoleLog(),
+    new FileLog(),
+    new ChunkFileLog(),
+    new DatabaseLog(),
+  ];
 
   /**
    * Add a new channel

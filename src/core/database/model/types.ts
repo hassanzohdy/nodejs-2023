@@ -70,6 +70,12 @@ export type ModelDocument = WithId<{
   [key: string]: any;
 }>;
 
+export type CollectionDocument<T> = ModelDocument &
+  T & {
+    createdAt?: Date;
+    updatedAt?: Date;
+  };
+
 export type CustomCastType = (column: string, value: any, model: Model) => any;
 
 export type CastType =

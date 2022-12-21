@@ -1,12 +1,12 @@
 import chalk from "chalk";
 import { Table } from "console-table-printer";
-import database, { connection, connectToDatabase } from ".";
+import database, { connection } from ".";
 
 export function listDatabaseIndexes() {
   onceConnected(async () => {
-    const collectionNames = await database.listCollectionNames();
+    const collections = await database.listCollectionNames();
 
-    for (const collection of collectionNames) {
+    for (const collection of collections) {
       // create a table in the console and print the collection name with its collection indexes
       const indexes = await database.collection(collection).indexes();
 
@@ -85,7 +85,6 @@ export function listDatabaseIndexes() {
 }
 
 export function onceConnected(callback: any) {
-  connectToDatabase();
   if (connection.isConnected()) {
     callback();
   } else {

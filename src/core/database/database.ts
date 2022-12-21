@@ -18,8 +18,8 @@ export class Database {
   /**
    * Get database collection instance
    */
-  public collection(collectionName: string) {
-    return this.database.collection(collectionName);
+  public collection(collection: string) {
+    return this.database.collection(collection);
   }
 
   /**
@@ -29,6 +29,13 @@ export class Database {
     return await (
       await this.database.collections()
     ).map(collection => collection.collectionName);
+  }
+
+  /**
+   * Drop database
+   */
+  public async drop() {
+    return await this.database.dropDatabase();
   }
 }
 

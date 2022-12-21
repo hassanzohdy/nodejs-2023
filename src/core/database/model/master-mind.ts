@@ -4,7 +4,7 @@ export class MasterMind {
   /**
    * Master Mind Collection name
    */
-  public collectionName = "MasterMind";
+  public collection = "MasterMind";
 
   /**
    * Connection Instance
@@ -14,11 +14,11 @@ export class MasterMind {
   /**
    * Get last id of the given collection
    */
-  public async getLastId(collectionName: string): Promise<number> {
-    const query = this.connection.database.collection(this.collectionName);
+  public async getLastId(collection: string): Promise<number> {
+    const query = this.connection.database.collection(this.collection);
 
     const collectionDocument = await query.findOne({
-      collection: collectionName,
+      collection: collection,
     });
 
     return collectionDocument ? collectionDocument.id : 0;
@@ -28,14 +28,14 @@ export class MasterMind {
    * Generate next id for the given collection name
    */
   public async generateNextId(
-    collectionName: string,
+    collection: string,
     incrementIdBy = 1,
     initialId = 1,
   ): Promise<number> {
-    const query = this.connection.database.collection(this.collectionName);
+    const query = this.connection.database.collection(this.collection);
 
     const collectionDocument = await query.findOne({
-      collection: collectionName,
+      collection: collection,
     });
 
     if (collectionDocument) {
@@ -44,7 +44,7 @@ export class MasterMind {
       // update the collection with the latest id
       await query.updateOne(
         {
-          collection: collectionName,
+          collection: collection,
         },
         {
           $set: {
@@ -58,7 +58,7 @@ export class MasterMind {
       // if the collection is not found in the master mind table
       // create a new record for it
       await query.insertOne({
-        collection: collectionName,
+        collection: collection,
         id: initialId,
       });
 

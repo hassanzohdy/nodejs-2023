@@ -54,7 +54,7 @@ export default abstract class BaseRepositoryManager<
   public getName() {
     if (this.name) return this.name;
 
-    return this.model.collectionName;
+    return this.model.collection;
   }
 
   /**

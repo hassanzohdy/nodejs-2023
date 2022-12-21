@@ -158,7 +158,7 @@ export default class BluePrint {
    * Get index name
    */
   public static getIndexName(columns: string[], type = "index") {
-    return `${this.model.collectionName}_${columns.join("_")}_${type}`;
+    return `${this.model.collection}_${columns.join("_")}_${type}`;
   }
 
   /**
@@ -179,7 +179,7 @@ export default class BluePrint {
    * Get collection instance
    */
   public static collection() {
-    return database.collection(this.model.collectionName);
+    return database.collection(this.model.collection);
   }
 
   /**

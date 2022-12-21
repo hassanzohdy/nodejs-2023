@@ -3,9 +3,11 @@ import "core/bootstrap";
 import { userLocationMigrations, userMigrations } from "app/users/models/user";
 import { usersGroupMigration } from "app/users/models/usersGroup";
 import { accessTokenMigration } from "core/auth/models/access-token";
-import { listDatabaseIndexes, migrate } from "core/database";
+import { connectToDatabase, listDatabaseIndexes, migrate } from "core/database";
 import { listMigrations, setMigrationsList } from "core/database/migrate";
 import "./config";
+
+connectToDatabase();
 
 const migrationsList = [
   userMigrations,
