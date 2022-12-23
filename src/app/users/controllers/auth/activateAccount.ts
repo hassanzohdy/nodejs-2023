@@ -1,5 +1,5 @@
-import User from "app/users/models/user/user";
-import { setCurrentUser, user } from "core/auth/current-user";
+import { User } from "app/users/models/user";
+import { getCurrentUser, setCurrentUser } from "core/auth";
 import { Request, Response } from "core/http";
 import dayjs from "dayjs";
 
@@ -7,11 +7,11 @@ export default async function activateAccount(
   request: Request,
   response: Response,
 ) {
-  const currentUser = user() as User;
+  const currentUser = getCurrentUser<User>();
 
   currentUser.unset("codeExpiresAt", "activationCode");
 
-  await currentUser.save({
+  currentUser.save({
     isActive: true,
     activatedAt: new Date(),
   });

@@ -1,11 +1,11 @@
-import { Model } from "core/database";
+import Auth from "./models/auth";
 
-let currentUser: Model | undefined;
+let currentUser: Auth | undefined;
 
 /**
  * Set current user
  */
-export function setCurrentUser(model: Model | undefined) {
+export function setCurrentUser(model: Auth | undefined) {
   currentUser = model;
 }
 
@@ -14,4 +14,8 @@ export function setCurrentUser(model: Model | undefined) {
  */
 export function user() {
   return currentUser;
+}
+
+export function getCurrentUser<T = Auth | null>(): T {
+  return currentUser as T;
 }

@@ -7,6 +7,7 @@
     "@fastify/jwt": "^6.5.0",
     "@fastify/multipart": "^7.3.0",
     "@fastify/rate-limit": "^7.6.0",
+    "@mongez/concat-route": "^1.0.0",
     "@mongez/config": "^1.0.25",
     "@mongez/dotenv": "^1.0.3",
     "@mongez/events": "^1.0.9",

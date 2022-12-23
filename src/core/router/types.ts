@@ -10,6 +10,8 @@ export type Middleware = (
   response: Response,
 ) => ReturnedResponse | undefined | void;
 
+export type RestfulMiddleware = Record<string, [Middleware]>;
+
 export type RouteHandlerValidation = {
   /**
    * Validation rules
@@ -65,6 +67,35 @@ export type Route = RouteOptions & {
    * And als can have a `validation` object as a static property of the handler
    */
   handler: RouteHandler;
+};
+export type PartialPick<T, F extends keyof T> = Omit<T, F> &
+  Partial<Pick<T, F>>;
+
+/**
+ * Grouped routes options
+ */
+export type GroupedRoutesOptions = {
+  /**
+   * Middlewares to be applied to all routes
+   */
+  middleware?: Middleware[];
+  /**
+   * Route prefix
+   */
+  prefix?: string;
+  /**
+   * Route name
+   * This will be added to each route as a name prefix
+   */
+  name?: string;
+  /**
+   * If set, all route methods will be set to this method
+   */
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  /**
+   * Routes list
+   */
+  routes?: PartialPick<Route, "method">[];
 };
 
 /** Route resource */

@@ -12,6 +12,11 @@ export default abstract class LogChannel {
   public description?: string;
 
   /**
+   * Determine if channel is logging in terminal
+   */
+  public terminal = false;
+
+  /**
    * Log the given message
    */
   public abstract log(

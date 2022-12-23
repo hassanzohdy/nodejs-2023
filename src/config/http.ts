@@ -4,6 +4,7 @@ import { HttpConfigurations } from "core/http";
 const httpConfigurations: HttpConfigurations = {
   port: env("PORT", 3000),
   host: env("HOST", "localhost"),
+  log: true,
   middleware: {
     // apply the middleware to all routes
     all: [],

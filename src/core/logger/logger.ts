@@ -2,8 +2,10 @@ import ChunkFileLog from "./channels/ChunkFileLog";
 import ConsoleLog from "./channels/ConsoleLog";
 import DatabaseLog from "./channels/DatabaseLog";
 import FileLog from "./channels/FileLog";
+import JSONFileLog from "./channels/JSONFileLog";
 import LogChannel from "./LogChannel";
 import { LogLevel } from "./types";
+import { clearMessage } from "./utils";
 
 export class Logger {
   /**
@@ -14,6 +16,7 @@ export class Logger {
     new FileLog(),
     new ChunkFileLog(),
     new DatabaseLog(),
+    new JSONFileLog(),
   ];
 
   /**
@@ -39,6 +42,10 @@ export class Logger {
    */
   public log(module: string, action: string, message: any, level: LogLevel) {
     for (const channel of this.channels) {
+      if (channel.terminal === false) {
+        message = clearMessage(message);
+      }
+
       channel.log(module, action, message, level);
     }
 

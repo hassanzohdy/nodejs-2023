@@ -9,3 +9,11 @@ export function captureAnyUnhandledRejection() {
     log.error("app", "error", error);
   });
 }
+
+/**
+ * Clear message from any terminal codes
+ */
+export function clearMessage(message: string) {
+  // eslint-disable-next-line no-control-regex
+  return message.replace(/\u001b[^m]*?m/g, "");
+}

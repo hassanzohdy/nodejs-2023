@@ -1,7 +1,7 @@
 import confirmRegistrationMail from "app/users/mail/confirmRegistrationMail";
-import User from "app/users/models/user/user";
+import { User } from "app/users/models/user";
 import { Request, Response } from "core/http";
-import ExistsRule from "core/validator/rules/exists";
+import { ExistsRule } from "core/validator";
 
 export default async function resendActivationCode(
   request: Request,

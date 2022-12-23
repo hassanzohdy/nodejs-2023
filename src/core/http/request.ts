@@ -1,5 +1,8 @@
+import config from "@mongez/config";
 import events from "@mongez/events";
 import { get, only } from "@mongez/reinforcements";
+import chalk from "chalk";
+import { log, LogLevel } from "core/logger";
 import { Middleware, Route } from "core/router/types";
 import { validateAll } from "core/validator";
 import { FastifyReply, FastifyRequest } from "fastify";
@@ -132,9 +135,19 @@ export class Request {
   }
 
   /**
+   * Make a log message
+   */
+  public log(message: string, level: LogLevel = "info") {
+    if (!config.get("http.log")) return;
+
+    log("request", this.route.method + " " + this.route.path, message, level);
+  }
+
+  /**
    * Execute the request
    */
   public async execute() {
+    this.log("About to execute the request");
     // check for middleware first
     const middlewareOutput = await this.executeMiddleware();
 
@@ -185,17 +198,30 @@ export class Request {
     // check if there are no middlewares, then return
     if (middlewares.length === 0) return;
 
+    this.log("About to execute request middlewares");
+
     // trigger the executingMiddleware event
     this.trigger("executingMiddleware", middlewares, this.route);
 
     for (const middleware of middlewares) {
+      this.log("Executing middleware " + chalk.yellowBright(middleware.name));
       const output = await middleware(this, this.response);
+      this.log("Executed middleware " + chalk.yellowBright(middleware.name));
 
       if (output !== undefined) {
+        this.log(
+          chalk.yellow("request intercepted by middleware ") +
+            chalk.cyanBright(middleware.name),
+        );
+
         this.trigger("executedMiddleware");
+
+        this.log("request middlewares executed");
         return output;
       }
     }
+
+    this.log("request middlewares executed");
 
     // trigger the executedMiddleware event
     this.trigger("executedMiddleware", middlewares, this.route);

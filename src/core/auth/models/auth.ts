@@ -13,7 +13,10 @@ export default abstract class Auth extends Model {
   /**
    * Generate jwt token
    */
-  public async generateAccessToken(): Promise<string> {
+  public async generateAccessToken(): Promise<{
+    accessToken: string;
+    userType: string;
+  }> {
     //
     // store the main data in the data object
     // we need to store the user data in an object
@@ -37,7 +40,10 @@ export default abstract class Auth extends Model {
       this.associate("tokens", accessToken).save();
     });
 
-    return token;
+    return {
+      accessToken: token,
+      userType: this.userType,
+    };
   }
 
   /**
@@ -56,12 +62,19 @@ export default abstract class Auth extends Model {
 
     // now verify the password
 
-    if (!verify(user.get("password"), data.password)) {
+    if (!user.confirmPassword(data.password)) {
       return null;
     }
 
     if (!user.get("isActive")) return null;
 
     return user as T;
+  }
+
+  /**
+   * Confirm password
+   */
+  public confirmPassword(password: string) {
+    return verify(this.get("password"), password);
   }
 }

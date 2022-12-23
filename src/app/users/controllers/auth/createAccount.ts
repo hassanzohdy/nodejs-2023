@@ -1,9 +1,8 @@
 import confirmRegistrationMail from "app/users/mail/confirmRegistrationMail";
-import User from "app/users/models/user/user";
+import { User } from "app/users/models/user";
 import { usernamePattern } from "app/users/utils/flags";
 import { Request, Response } from "core/http";
-import PatternRule from "core/validator/rules/pattern";
-import UniqueRule from "core/validator/rules/unique";
+import { PatternRule, UniqueRule } from "core/validator";
 
 export default async function createAccount(
   request: Request,

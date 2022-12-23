@@ -9,6 +9,11 @@ export default class ConsoleLog extends LogChannel {
   public name = "console";
 
   /**
+   * Determine if channel is logging in terminal
+   */
+  public terminal = true;
+
+  /**
    * {@inheritdoc}
    */
   public log(module: string, action: string, message: any, level: LogLevel) {

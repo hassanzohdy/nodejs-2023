@@ -115,6 +115,10 @@ export interface HttpConfigurations {
    */
   port?: number;
   /**
+   * Log requests
+   */
+  log?: boolean;
+  /**
    * Host
    */
   host?: string;
